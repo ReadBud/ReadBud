@@ -44,6 +44,9 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    configurations.implementation {
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+    }
 }
 
 dependencies {
@@ -65,6 +68,9 @@ dependencies {
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
+
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.27.0"
+    implementation "com.google.accompanist:accompanist-insets:0.14.0"
 
     //Material 3
     implementation "androidx.compose.material3:material3:1.1.1"
