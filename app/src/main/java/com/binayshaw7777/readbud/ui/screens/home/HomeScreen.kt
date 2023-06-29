@@ -1,74 +1,74 @@
 package com.binayshaw7777.readbud.ui.screens.home
 
+
+import android.Manifest
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.binayshaw7777.readbud.ui.theme.PrimaryContainer
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.rememberPermissionState
 
 
-@Preview(showBackground = true)
-@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("PermissionLaunchedDuringComposition")
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
-fun HomeScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween,
-    ) {
+fun HomeScreen(navController: NavHostController) {
+    val context = LocalContext.current
 
-        var searchQuery by rememberSaveable { mutableStateOf("") }
+    val cameraPermissionState: PermissionState = rememberPermissionState(Manifest.permission.CAMERA)
+    val noPermissionGranted = remember {
+        mutableStateOf(false)
+    }
+    val permissionGranted = remember {
+        mutableStateOf(false)
+    }
+    if (noPermissionGranted.value) {
+        cameraPermissionState.launchPermissionRequest()
+    } else if (permissionGranted.value){
+        //TODO
+    }
 
-        SearchBar(
-            modifier = Modifier
-                .align(Alignment.Start)
-                .fillMaxWidth()
-                .padding(20.dp),
-            query = searchQuery,
-            onQueryChange = { searchQuery = it },
-            onSearch = {},
-            active = false,
-            onActiveChange = {},
-            placeholder = { Text("Search your last scan") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
-        ) {
-        }
-
+    Scaffold(Modifier.fillMaxSize(), floatingActionButton = {
         FloatingActionButton(
-            modifier = Modifier.align(Alignment.End).padding(20.dp),
+            modifier = Modifier
+                .padding(20.dp),
             onClick = {
-                //OnClick Method
+                if (cameraPermissionState.hasPermission) {
+                    permissionGranted.value = true
+                } else {
+                    noPermissionGranted.value = true
+                }
             },
             containerColor = PrimaryContainer,
             shape = RoundedCornerShape(16.dp),
@@ -79,5 +79,43 @@ fun HomeScreen() {
                 tint = Color.White,
             )
         }
+    }) { padding ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+
+                var searchQuery by rememberSaveable { mutableStateOf("") }
+
+                SearchBar(
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    query = searchQuery,
+                    onQueryChange = { searchQuery = it },
+                    onSearch = {},
+                    active = false,
+                    onActiveChange = {},
+                    placeholder = { Text("Search your last scan") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
+                ) {
+                }
+            }
+        }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun Preview() {
+    HomeScreen(rememberNavController())
 }

@@ -88,10 +88,12 @@ fun Navigation() {
         NavHost(
             navController,
             startDestination = "home",
-            modifier = Modifier.padding(it).background(Color.White)
+            modifier = Modifier
+                .padding(it)
+                .background(Color.White)
         ) {
-            composable("home") { HomeScreen() }
-            composable("settings") { SettingsScreens() }
+            composable("home") { HomeScreen(navController) }
+            composable("settings") { SettingsScreens(navController) }
         }
     }
 }
