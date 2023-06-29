@@ -2,4 +2,6 @@
     <string name="app_name">ReadBud</string>
     <string name="home">Home</string>
     <string name="settings">Settings</string>
+    <string name="search_your_last_scan">Search your last scan</string>
+    <string name="add_fab">Add FAB</string>
 </resources>

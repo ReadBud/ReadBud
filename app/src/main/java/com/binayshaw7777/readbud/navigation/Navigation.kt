@@ -20,7 +20,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.binayshaw7777.readbud.ui.screens.home.HomeScreen
+import com.binayshaw7777.readbud.ui.screens.image_screens.image_listing.ImageListing
 import com.binayshaw7777.readbud.ui.screens.settings.SettingsScreens
+import com.binayshaw7777.readbud.utils.Constants.HOME
+import com.binayshaw7777.readbud.utils.Constants.IMAGE_LISTING
+import com.binayshaw7777.readbud.utils.Constants.SETTINGS
 
 
 @Composable
@@ -28,12 +32,12 @@ fun Navigation() {
     val bottomNavItems = listOf(
         BottomNavItem(
             name = "Home",
-            route = "home",
+            route = HOME,
             icon = Icons.Rounded.Home,
         ),
         BottomNavItem(
             name = "Settings",
-            route = "settings",
+            route = SETTINGS,
             icon = Icons.Rounded.Settings,
         ),
     )
@@ -49,7 +53,7 @@ fun Navigation() {
             ) {
                 bottomNavItems.forEach { item ->
                     NavigationBarItem(
-                        alwaysShowLabel = false,
+                        alwaysShowLabel = true,
                         icon = {
                             Icon(
                                 imageVector = item.icon,
@@ -87,13 +91,14 @@ fun Navigation() {
     ) {
         NavHost(
             navController,
-            startDestination = "home",
+            startDestination = HOME,
             modifier = Modifier
                 .padding(it)
                 .background(Color.White)
         ) {
-            composable("home") { HomeScreen(navController) }
-            composable("settings") { SettingsScreens(navController) }
+            composable(HOME) { HomeScreen(navController) }
+            composable(SETTINGS) { SettingsScreens(navController) }
+            composable(IMAGE_LISTING) { ImageListing(navController) }
         }
     }
 }

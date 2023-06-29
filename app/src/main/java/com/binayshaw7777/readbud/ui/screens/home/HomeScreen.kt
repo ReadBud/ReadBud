@@ -1,13 +1,14 @@
 package com.binayshaw7777.readbud.ui.screens.home
 
 
-import android.Manifest
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,34 +30,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.ui.theme.PrimaryContainer
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
-import com.google.accompanist.permissions.rememberPermissionState
+import com.binayshaw7777.readbud.utils.Constants.IMAGE_LISTING
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("PermissionLaunchedDuringComposition")
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    val context = LocalContext.current
 
-    val cameraPermissionState: PermissionState = rememberPermissionState(Manifest.permission.CAMERA)
-    val noPermissionGranted = remember {
+    val onClickGotoImageListing = remember {
         mutableStateOf(false)
     }
-    val permissionGranted = remember {
-        mutableStateOf(false)
-    }
-    if (noPermissionGranted.value) {
-        cameraPermissionState.launchPermissionRequest()
-    } else if (permissionGranted.value){
-        //TODO
+    if (onClickGotoImageListing.value) {
+        navController.navigate(IMAGE_LISTING)
     }
 
     Scaffold(Modifier.fillMaxSize(), floatingActionButton = {
@@ -64,18 +57,14 @@ fun HomeScreen(navController: NavHostController) {
             modifier = Modifier
                 .padding(20.dp),
             onClick = {
-                if (cameraPermissionState.hasPermission) {
-                    permissionGranted.value = true
-                } else {
-                    noPermissionGranted.value = true
-                }
+                onClickGotoImageListing.value = true
             },
             containerColor = PrimaryContainer,
             shape = RoundedCornerShape(16.dp),
         ) {
             Icon(
                 imageVector = Icons.Rounded.Add,
-                contentDescription = "Add FAB",
+                contentDescription = stringResource(R.string.add_fab),
                 tint = Color.White,
             )
         }
@@ -87,10 +76,9 @@ fun HomeScreen(navController: NavHostController) {
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White),
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween,
+                verticalArrangement = Arrangement.Top,
             ) {
 
                 var searchQuery by rememberSaveable { mutableStateOf("") }
@@ -105,10 +93,11 @@ fun HomeScreen(navController: NavHostController) {
                     onSearch = {},
                     active = false,
                     onActiveChange = {},
-                    placeholder = { Text("Search your last scan") },
+                    placeholder = { Text(stringResource(R.string.search_your_last_scan)) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
                 ) {
                 }
+                Spacer(modifier = Modifier.height(10.dp))
             }
         }
     }
