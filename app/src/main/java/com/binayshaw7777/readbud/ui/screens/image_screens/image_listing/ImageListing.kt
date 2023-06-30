@@ -35,22 +35,29 @@ import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.components.DocumentCard
 import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
+import com.binayshaw7777.readbud.utils.Logger
+import com.binayshaw7777.readbud.utils.extractTextFromBitmap
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberPermissionState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ImageListing(navController: NavController) {
 
     val imageViewModel = remember { ImageViewModel() }
-    val context = LocalContext.current
     val bitmapList by imageViewModel.bitmapList.observeAsState()
 
     val launcher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicturePreview()) {
             it?.let {
                 imageViewModel.addBitmap(it)
+                CoroutineScope(Dispatchers.Default).launch {
+                    Logger.debug("Extracted Text:\n${extractTextFromBitmap(it)}")
+                }
             }
         }
 
