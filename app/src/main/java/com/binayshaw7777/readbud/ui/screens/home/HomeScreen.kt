@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.binayshaw7777.readbud.R
-import com.binayshaw7777.readbud.ui.theme.PrimaryContainer
+import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
 import com.binayshaw7777.readbud.utils.Constants.IMAGE_LISTING
 
 
@@ -52,52 +52,52 @@ fun HomeScreen(navController: NavHostController) {
         navController.navigate(IMAGE_LISTING)
     }
 
-    Scaffold(Modifier.fillMaxSize(), floatingActionButton = {
-        FloatingActionButton(
-            modifier = Modifier
-                .padding(20.dp),
-            onClick = {
-                onClickGotoImageListing.value = true
-            },
-            containerColor = PrimaryContainer,
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Add,
-                contentDescription = stringResource(R.string.add_fab),
-                tint = Color.White,
-            )
-        }
-    }) { padding ->
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            Column(
+    ReadBudTheme(dynamicColor = true) {
+        Scaffold(Modifier.fillMaxSize(), floatingActionButton = {
+            FloatingActionButton(
                 modifier = Modifier
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top,
+                    .padding(20.dp),
+                onClick = {
+                    onClickGotoImageListing.value = true
+                },
+                shape = RoundedCornerShape(16.dp),
             ) {
-
-                var searchQuery by rememberSaveable { mutableStateOf("") }
-
-                SearchBar(
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = stringResource(R.string.add_fab),
+                )
+            }
+        }) { padding ->
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                Column(
                     modifier = Modifier
-                        .align(Alignment.Start)
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    query = searchQuery,
-                    onQueryChange = { searchQuery = it },
-                    onSearch = {},
-                    active = false,
-                    onActiveChange = {},
-                    placeholder = { Text(stringResource(R.string.search_your_last_scan)) },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top,
                 ) {
+
+                    var searchQuery by rememberSaveable { mutableStateOf("") }
+
+                    SearchBar(
+                        modifier = Modifier
+                            .align(Alignment.Start)
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        query = searchQuery,
+                        onQueryChange = { searchQuery = it },
+                        onSearch = {},
+                        active = false,
+                        onActiveChange = {},
+                        placeholder = { Text(stringResource(R.string.search_your_last_scan)) },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
+                    ) {
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
                 }
-                Spacer(modifier = Modifier.height(10.dp))
             }
         }
     }

@@ -19,16 +19,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.binayshaw7777.readbud.components.BottomSheet
-import com.binayshaw7777.readbud.components.ImageSourceOptions
+import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
-import com.binayshaw7777.readbud.ui.theme.PrimaryContainer
+import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
 import com.binayshaw7777.readbud.utils.Logger
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
@@ -39,7 +38,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 fun ImageListing(navController: NavController) {
 
     val imageViewModel = remember { ImageViewModel() }
-
+    val context = LocalContext.current
     var bitmap: Bitmap? by remember { mutableStateOf(null) }
 
     val launcher =
@@ -51,11 +50,7 @@ fun ImageListing(navController: NavController) {
         }
 
     val cameraPermissionState: PermissionState = rememberPermissionState(Manifest.permission.CAMERA)
-    val noPermissionGranted = remember { mutableStateOf(false) }
     val permissionGranted = remember { mutableStateOf(false) }
-
-//    val showSheet = remember { mutableStateOf(false) }
-//    val functionVariable: @Composable () -> Unit = { ImageSourceOptions() }
 
     bitmap?.let {
 
@@ -64,38 +59,36 @@ fun ImageListing(navController: NavController) {
     if (permissionGranted.value) {
         permissionGranted.value = false
         launcher.launch(null)
-    } else if (noPermissionGranted.value) {
-        cameraPermissionState.launchPermissionRequest()
-        noPermissionGranted.value = false
     }
 
-    Scaffold(Modifier.fillMaxSize(),
-        floatingActionButton = {
-            FloatingActionButton(
+    ReadBudTheme(dynamicColor = true) {
+
+        Scaffold(Modifier.fillMaxSize(),
+            floatingActionButton = {
+                FloatingActionButton(
+                    modifier = Modifier
+                        .padding(20.dp),
+                    onClick = {
+                        if (cameraPermissionState.hasPermission) {
+                            permissionGranted.value = true
+                        } else {
+                            cameraPermissionState.launchPermissionRequest()
+                        }
+                    },
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = stringResource(R.string.add_fab),
+                    )
+                }
+            }) { padding ->
+            Surface(
                 modifier = Modifier
-                    .padding(20.dp),
-                onClick = {
-                    if (cameraPermissionState.hasPermission) {
-                        permissionGranted.value = true
-                    } else {
-                        noPermissionGranted.value = true
-                    }
-                },
-                containerColor = PrimaryContainer,
-                shape = RoundedCornerShape(16.dp),
+                    .fillMaxSize()
+                    .padding(padding)
             ) {
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = "Add FAB",
-                    tint = Color.White,
-                )
             }
-        }) { padding ->
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
         }
     }
 }

@@ -4,4 +4,8 @@
     <string name="settings">Settings</string>
     <string name="search_your_last_scan">Search your last scan</string>
     <string name="add_fab">Add FAB</string>
+    <string name="appearance">Appearance</string>
+    <string name="storage_and_data">Storage and Data</string>
+    <string name="about">About</string>
+    <string name="general">General</string>
 </resources>
