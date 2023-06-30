@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,7 +22,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.binayshaw7777.readbud.R
-import com.binayshaw7777.readbud.ui.theme.SecondarySurface
 
 @Preview(showBackground = true)
 @Composable
@@ -30,10 +30,10 @@ fun DocumentCard() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(15.dp)
-            .clickable{ },
+            .clickable { },
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().background(SecondarySurface),
+            modifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colorScheme.surface),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {

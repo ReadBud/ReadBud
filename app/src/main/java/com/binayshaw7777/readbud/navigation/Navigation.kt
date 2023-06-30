@@ -49,7 +49,7 @@ fun Navigation() {
     Scaffold(
         bottomBar = {
             NavigationBar(
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = MaterialTheme.colorScheme.surface,
             ) {
                 bottomNavItems.forEach { item ->
                     NavigationBarItem(
@@ -61,16 +61,16 @@ fun Navigation() {
                                 tint = if (backStackEntry.value?.destination?.route == item.route)
                                     MaterialTheme.colorScheme.onSurface
                                 else
-                                    MaterialTheme.colorScheme.onPrimary
+                                    MaterialTheme.colorScheme.secondary
                             )
                         },
                         label = {
                             Text(
                                 text = item.name,
                                 color = if (backStackEntry.value?.destination?.route == item.route)
-                                    MaterialTheme.colorScheme.inverseOnSurface
+                                    MaterialTheme.colorScheme.onSurface
                                 else
-                                    MaterialTheme.colorScheme.onPrimary,
+                                    MaterialTheme.colorScheme.secondary,
                                 fontWeight = if (backStackEntry.value?.destination?.route == item.route)
                                     FontWeight.Bold
                                 else
