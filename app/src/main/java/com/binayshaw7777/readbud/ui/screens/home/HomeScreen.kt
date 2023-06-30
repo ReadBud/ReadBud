@@ -2,7 +2,6 @@ package com.binayshaw7777.readbud.ui.screens.home
 
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -53,7 +54,18 @@ fun HomeScreen(navController: NavHostController) {
     }
 
     ReadBudTheme(dynamicColor = true) {
-        Scaffold(Modifier.fillMaxSize(), floatingActionButton = {
+        Scaffold(Modifier.fillMaxSize(),
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            stringResource(id = R.string.home),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                )
+            },floatingActionButton = {
             FloatingActionButton(
                 modifier = Modifier
                     .padding(20.dp),
@@ -86,7 +98,7 @@ fun HomeScreen(navController: NavHostController) {
                         modifier = Modifier
                             .align(Alignment.Start)
                             .fillMaxWidth()
-                            .padding(20.dp),
+                            .padding(20.dp, 0.dp),
                         query = searchQuery,
                         onQueryChange = { searchQuery = it },
                         onSearch = {},

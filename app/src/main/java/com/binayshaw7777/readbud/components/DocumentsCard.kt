@@ -1,5 +1,6 @@
 package com.binayshaw7777.readbud.components
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,17 +16,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.binayshaw7777.readbud.R
 
-@Preview(showBackground = true)
 @Composable
-fun DocumentCard() {
+fun DocumentCard(thumbnail: Bitmap, heading: String, description: String?) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -33,7 +31,7 @@ fun DocumentCard() {
             .clickable { },
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colorScheme.surface),
+            modifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colorScheme.secondaryContainer),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -42,12 +40,17 @@ fun DocumentCard() {
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(fontSize = 16.sp, color = Color.White, text = "Scan-2023/06...", fontWeight = FontWeight.Bold)
-                Text(fontSize = 14.sp, color = Color.White, text = "Description of the card item")
+                Text(fontSize = 16.sp, color = Color.White, text = heading, fontWeight = FontWeight.Bold)
+                if (description?.isNotEmpty() == true) {
+                    Text(
+                        fontSize = 14.sp,
+                        color = Color.White,
+                        text = description
+                    )
+                }
             }
-
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+                bitmap = thumbnail.asImageBitmap(),
                 contentDescription = "image description",
                 contentScale = ContentScale.FillBounds
             )
