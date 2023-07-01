@@ -44,14 +44,7 @@ import com.binayshaw7777.readbud.utils.Constants.IMAGE_LISTING
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("PermissionLaunchedDuringComposition")
 @Composable
-fun HomeScreen(navController: NavHostController) {
-
-    val onClickGotoImageListing = remember {
-        mutableStateOf(false)
-    }
-    if (onClickGotoImageListing.value) {
-        navController.navigate(IMAGE_LISTING)
-    }
+fun HomeScreen(onFabClicked: () -> Unit) {
 
     ReadBudTheme(dynamicColor = true) {
         Scaffold(Modifier.fillMaxSize(),
@@ -70,7 +63,7 @@ fun HomeScreen(navController: NavHostController) {
                 modifier = Modifier
                     .padding(20.dp),
                 onClick = {
-                    onClickGotoImageListing.value = true
+                    onFabClicked()
                 },
                 shape = RoundedCornerShape(16.dp),
             ) {
@@ -118,5 +111,5 @@ fun HomeScreen(navController: NavHostController) {
 @Preview(showBackground = true)
 @Composable
 fun Preview() {
-    HomeScreen(rememberNavController())
+    HomeScreen {}
 }

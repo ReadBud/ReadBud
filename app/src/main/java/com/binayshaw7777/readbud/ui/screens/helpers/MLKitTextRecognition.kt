@@ -29,7 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import com.binayshaw7777.readbud.utils.Constants.EXTRACTED_TEXT
 import com.binayshaw7777.readbud.utils.Logger
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -41,7 +43,6 @@ import java.util.concurrent.Executors
 @Composable
 fun MLKitTextRecognition(
     navController: NavController,
-    onImageCapture: (String) -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -51,7 +52,9 @@ fun MLKitTextRecognition(
     }
     if (isClicked.value) {
         Logger.debug("ExtractedTextFromMLKIT: ${extractedText.value}")
-        onImageCapture(extractedText.value)
+//        onImageCapture(extractedText.value)
+        navController.previousBackStackEntry?.savedStateHandle?.set(EXTRACTED_TEXT,extractedText.value)
+        isClicked.value = false
         navController.popBackStack()
     }
 
@@ -147,7 +150,7 @@ fun TextRecognitionView(
         ) {
             Button(
                 modifier = Modifier.size(60.dp),
-                colors = ButtonDefaults.buttonColors(contentColor = Color.White),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 onClick = { isClicked.value = true },
                 shape = RoundedCornerShape(100)
             ) {

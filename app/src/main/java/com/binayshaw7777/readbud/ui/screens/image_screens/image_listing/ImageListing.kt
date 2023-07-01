@@ -1,13 +1,9 @@
 package com.binayshaw7777.readbud.ui.screens.image_screens.image_listing
 
 import android.Manifest
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -19,64 +15,41 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.NavType
-import androidx.navigation.compose.navArgument
-import androidx.navigation.compose.rememberNavController
 import com.binayshaw7777.readbud.R
-import com.binayshaw7777.readbud.components.DocumentCard
-import com.binayshaw7777.readbud.ui.screens.helpers.MLKitTextRecognition
-import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
-import com.binayshaw7777.readbud.utils.Constants.ML_KIT_RECOGNITION
 import com.binayshaw7777.readbud.utils.Logger
-import com.binayshaw7777.readbud.utils.extractTextFromBitmap
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberPermissionState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ImageListing(navController: NavController) {
+fun ImageListing(extractedString: String?, onFabClick: () -> Unit) {
 
-//    val imageViewModel = remember { ImageViewModel() }
-//    val bitmapList by imageViewModel.bitmapList.observeAsState()
-//
-//    val launcher =
-//        rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicturePreview()) {
-//            it?.let {
-//                imageViewModel.addBitmap(it)
-//                CoroutineScope(Dispatchers.Default).launch {
-//                    Logger.debug("Extracted Text:\n${extractTextFromBitmap(it)}")
-//                }
-//            }
-//        }
-//
     val cameraPermissionState: PermissionState = rememberPermissionState(Manifest.permission.CAMERA)
-    val permissionGranted = remember { mutableStateOf(false) }
-//
-    if (permissionGranted.value) {
-        permissionGranted.value = false
-        navController.navigate(ML_KIT_RECOGNITION)
+    val recognizedString = remember {
+        mutableStateOf("")
+    }
+
+//    if (extractedString?()) {
+//        Logger.debug("Received String: ${recognizedString.value}")
+//    }
+    extractedString?.let {
+        if (it.isNotEmpty()) Logger.debug("Received String: $extractedString")
     }
 
     ReadBudTheme(dynamicColor = true) {
 
-        Scaffold(Modifier.fillMaxSize(),
+        Scaffold(
+            Modifier.fillMaxSize(),
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
@@ -94,7 +67,7 @@ fun ImageListing(navController: NavController) {
                         .padding(20.dp),
                     onClick = {
                         if (cameraPermissionState.hasPermission) {
-                            permissionGranted.value = true
+                            onFabClick()
                         } else {
                             cameraPermissionState.launchPermissionRequest()
                         }
@@ -112,20 +85,7 @@ fun ImageListing(navController: NavController) {
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-//                    bitmapList?.let { bitmaps ->
-//                        LazyColumn {
-//                            itemsIndexed(bitmaps) { index, bitmap ->
-//                                DocumentCard(
-//                                    thumbnail = bitmap,
-//                                    heading = "Bitmap item: $index",
-//                                    description = null
-//                                )
-//                            }
-//                        }
-//                    }
-                }
-
+                Column(modifier = Modifier.padding(16.dp)) {}
             }
         }
     }
@@ -134,7 +94,7 @@ fun ImageListing(navController: NavController) {
 @Preview(showBackground = true)
 @Composable
 fun Preview() {
-    ImageListing(rememberNavController())
+    ImageListing("") {}
 }
 
 
