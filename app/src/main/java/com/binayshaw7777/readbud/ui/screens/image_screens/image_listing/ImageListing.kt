@@ -105,7 +105,7 @@ fun ImageListing(
                                 item.thumbnail?.let { it1 ->
                                     DocumentCard(
                                         thumbnail = it1,
-                                        heading = "Item no. $index",
+                                        heading = "Scan no. $index",
                                         description = ""
                                     )
                                 }

@@ -33,6 +33,7 @@ import androidx.navigation.NavController
 import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.utils.Constants.EXTRACTED_TEXT
 import com.binayshaw7777.readbud.utils.Logger
+import com.binayshaw7777.readbud.utils.rotateBitmap
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
@@ -167,7 +168,7 @@ class ObjectDetectorImageAnalyzer(
                         extractedText.value = it.result?.text ?: ""
                         recognizedTextItem.value = RecognizedTextItem(
                             extractedText = extractedText.value,
-                            thumbnail = imageProxy.toBitmap()
+                            thumbnail = imageProxy.toBitmap().rotateBitmap(90)
                         )
                     }
                     imageProxy.close()

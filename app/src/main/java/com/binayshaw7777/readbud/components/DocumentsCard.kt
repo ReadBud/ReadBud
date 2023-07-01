@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,11 +28,13 @@ fun DocumentCard(thumbnail: Bitmap, heading: String, description: String?) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(15.dp)
+            .padding(0.dp, 10.dp)
             .clickable { },
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colorScheme.secondaryContainer),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = MaterialTheme.colorScheme.secondaryContainer),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -40,7 +43,12 @@ fun DocumentCard(thumbnail: Bitmap, heading: String, description: String?) {
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(fontSize = 16.sp, color = Color.White, text = heading, fontWeight = FontWeight.Bold)
+                Text(
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    text = heading,
+                    fontWeight = FontWeight.Bold
+                )
                 if (description?.isNotEmpty() == true) {
                     Text(
                         fontSize = 14.sp,
@@ -50,6 +58,7 @@ fun DocumentCard(thumbnail: Bitmap, heading: String, description: String?) {
                 }
             }
             Image(
+                modifier = Modifier.size(80.dp, 100.dp),
                 bitmap = thumbnail.asImageBitmap(),
                 contentDescription = "image description",
                 contentScale = ContentScale.FillBounds
