@@ -30,11 +30,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavType
+import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.components.DocumentCard
+import com.binayshaw7777.readbud.ui.screens.helpers.MLKitTextRecognition
 import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
+import com.binayshaw7777.readbud.utils.Constants.ML_KIT_RECOGNITION
 import com.binayshaw7777.readbud.utils.Logger
 import com.binayshaw7777.readbud.utils.extractTextFromBitmap
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -44,29 +48,30 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ImageListing(navController: NavController) {
 
-    val imageViewModel = remember { ImageViewModel() }
-    val bitmapList by imageViewModel.bitmapList.observeAsState()
-
-    val launcher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicturePreview()) {
-            it?.let {
-                imageViewModel.addBitmap(it)
-                CoroutineScope(Dispatchers.Default).launch {
-                    Logger.debug("Extracted Text:\n${extractTextFromBitmap(it)}")
-                }
-            }
-        }
-
+//    val imageViewModel = remember { ImageViewModel() }
+//    val bitmapList by imageViewModel.bitmapList.observeAsState()
+//
+//    val launcher =
+//        rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicturePreview()) {
+//            it?.let {
+//                imageViewModel.addBitmap(it)
+//                CoroutineScope(Dispatchers.Default).launch {
+//                    Logger.debug("Extracted Text:\n${extractTextFromBitmap(it)}")
+//                }
+//            }
+//        }
+//
     val cameraPermissionState: PermissionState = rememberPermissionState(Manifest.permission.CAMERA)
     val permissionGranted = remember { mutableStateOf(false) }
-
+//
     if (permissionGranted.value) {
         permissionGranted.value = false
-        launcher.launch(null)
+        navController.navigate(ML_KIT_RECOGNITION)
     }
 
     ReadBudTheme(dynamicColor = true) {
@@ -108,17 +113,17 @@ fun ImageListing(navController: NavController) {
                     .padding(padding)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    bitmapList?.let { bitmaps ->
-                        LazyColumn {
-                            itemsIndexed(bitmaps) { index, bitmap ->
-                                DocumentCard(
-                                    thumbnail = bitmap,
-                                    heading = "Bitmap item: $index",
-                                    description = null
-                                )
-                            }
-                        }
-                    }
+//                    bitmapList?.let { bitmaps ->
+//                        LazyColumn {
+//                            itemsIndexed(bitmaps) { index, bitmap ->
+//                                DocumentCard(
+//                                    thumbnail = bitmap,
+//                                    heading = "Bitmap item: $index",
+//                                    description = null
+//                                )
+//                            }
+//                        }
+//                    }
                 }
 
             }

@@ -19,11 +19,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.binayshaw7777.readbud.ui.screens.helpers.MLKitTextRecognition
 import com.binayshaw7777.readbud.ui.screens.home.HomeScreen
 import com.binayshaw7777.readbud.ui.screens.image_screens.image_listing.ImageListing
 import com.binayshaw7777.readbud.ui.screens.settings.SettingsScreens
 import com.binayshaw7777.readbud.utils.Constants.HOME
 import com.binayshaw7777.readbud.utils.Constants.IMAGE_LISTING
+import com.binayshaw7777.readbud.utils.Constants.ML_KIT_RECOGNITION
 import com.binayshaw7777.readbud.utils.Constants.SETTINGS
 
 
@@ -99,6 +101,9 @@ fun Navigation() {
             composable(HOME) { HomeScreen(navController) }
             composable(SETTINGS) { SettingsScreens(navController) }
             composable(IMAGE_LISTING) { ImageListing(navController) }
+            composable(ML_KIT_RECOGNITION) { MLKitTextRecognition(navController) {
+                
+            } }
         }
     }
 }
