@@ -23,6 +23,7 @@ import com.binayshaw7777.readbud.ui.screens.helpers.MLKitTextRecognition
 import com.binayshaw7777.readbud.ui.screens.home.HomeScreen
 import com.binayshaw7777.readbud.ui.screens.image_screens.image_listing.ImageListing
 import com.binayshaw7777.readbud.ui.screens.settings.SettingsScreens
+import com.binayshaw7777.readbud.utils.Constants.EXTRACTED_TEXT
 import com.binayshaw7777.readbud.utils.Constants.HOME
 import com.binayshaw7777.readbud.utils.Constants.IMAGE_LISTING
 import com.binayshaw7777.readbud.utils.Constants.ML_KIT_RECOGNITION
@@ -34,12 +35,12 @@ fun Navigation() {
     val bottomNavItems = listOf(
         BottomNavItem(
             name = "Home",
-            route = HOME,
+            route = Screens.Home.name,
             icon = Icons.Rounded.Home,
         ),
         BottomNavItem(
             name = "Settings",
-            route = SETTINGS,
+            route = Screens.Settings.name,
             icon = Icons.Rounded.Settings,
         ),
     )
@@ -48,45 +49,51 @@ fun Navigation() {
     // NavController is passed via parameter
     val backStackEntry = navController.currentBackStackEntryAsState()
 
+    val screensWithoutNavBar = listOf(
+        Screens.MLKitTextRecognition.name
+    )
+
     Scaffold(
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-            ) {
-                bottomNavItems.forEach { item ->
-                    NavigationBarItem(
-                        alwaysShowLabel = true,
-                        icon = {
-                            Icon(
-                                imageVector = item.icon,
-                                contentDescription = item.name,
-                                tint = if (backStackEntry.value?.destination?.route == item.route)
-                                    MaterialTheme.colorScheme.onSurface
-                                else
-                                    MaterialTheme.colorScheme.secondary
-                            )
-                        },
-                        label = {
-                            Text(
-                                text = item.name,
-                                color = if (backStackEntry.value?.destination?.route == item.route)
-                                    MaterialTheme.colorScheme.onSurface
-                                else
-                                    MaterialTheme.colorScheme.secondary,
-                                fontWeight = if (backStackEntry.value?.destination?.route == item.route)
-                                    FontWeight.Bold
-                                else
-                                    FontWeight.Normal,
-                            )
-                        },
-                        selected = backStackEntry.value?.destination?.route == item.route,
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.startDestinationId)
-                                launchSingleTop = true
+            if (backStackEntry.value?.destination?.route !in screensWithoutNavBar) {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ) {
+                    bottomNavItems.forEach { item ->
+                        NavigationBarItem(
+                            alwaysShowLabel = true,
+                            icon = {
+                                Icon(
+                                    imageVector = item.icon,
+                                    contentDescription = item.name,
+                                    tint = if (backStackEntry.value?.destination?.route == item.route)
+                                        MaterialTheme.colorScheme.onSurface
+                                    else
+                                        MaterialTheme.colorScheme.secondary
+                                )
+                            },
+                            label = {
+                                Text(
+                                    text = item.name,
+                                    color = if (backStackEntry.value?.destination?.route == item.route)
+                                        MaterialTheme.colorScheme.onSurface
+                                    else
+                                        MaterialTheme.colorScheme.secondary,
+                                    fontWeight = if (backStackEntry.value?.destination?.route == item.route)
+                                        FontWeight.Bold
+                                    else
+                                        FontWeight.Normal,
+                                )
+                            },
+                            selected = backStackEntry.value?.destination?.route == item.route,
+                            onClick = {
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.startDestinationId)
+                                    launchSingleTop = true
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
@@ -98,12 +105,18 @@ fun Navigation() {
                 .padding(it)
                 .background(Color.White)
         ) {
-            composable(HOME) { HomeScreen(navController) }
+            composable(HOME) {
+                HomeScreen(
+                    onFabClicked = { navController.navigate(Screens.ItemListing.name) })
+            }
             composable(SETTINGS) { SettingsScreens(navController) }
-            composable(IMAGE_LISTING) { ImageListing(navController) }
-            composable(ML_KIT_RECOGNITION) { MLKitTextRecognition(navController) {
-                
-            } }
+            composable(IMAGE_LISTING) { entry ->
+                val text = entry.savedStateHandle.get<String>(EXTRACTED_TEXT)
+                ImageListing(text, onFabClick = {navController.navigate(Screens.MLKitTextRecognition.name)})
+            }
+            composable(ML_KIT_RECOGNITION) {
+                MLKitTextRecognition(navController)
+            }
         }
     }
 }
