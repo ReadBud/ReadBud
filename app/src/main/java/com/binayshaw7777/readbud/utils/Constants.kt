@@ -12,5 +12,6 @@ object Constants {
     const val SETTINGS = "settings"
     const val IMAGE_LISTING = "image_listing"
     const val ML_KIT_RECOGNITION = "ml_kit_recognition"
+    const val BOOK_VIEW = "book_view"
     const val EXTRACTED_TEXT = "extracted_text"
 }

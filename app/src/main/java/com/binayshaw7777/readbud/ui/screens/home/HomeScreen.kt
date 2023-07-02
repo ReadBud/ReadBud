@@ -55,7 +55,7 @@ private lateinit var selectedScanItem: Scans
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("PermissionLaunchedDuringComposition")
 @Composable
-fun HomeScreen(scansViewModel: ScansViewModel, onFabClicked: () -> Unit) {
+fun HomeScreen(scansViewModel: ScansViewModel, onFabClicked: () -> Unit, navigateToBookView: () -> Unit) {
 
     val listOfAllScans = scansViewModel.listOfScans.observeAsState()
 
@@ -70,7 +70,9 @@ fun HomeScreen(scansViewModel: ScansViewModel, onFabClicked: () -> Unit) {
 
     if (isSelected) {
         Logger.debug("Selected item: $selectedItem")
+        scansViewModel.selectedScanDocument.postValue(selectedItem.value)
         isSelected = false
+        navigateToBookView()
     }
 
     ReadBudTheme(dynamicColor = true) {

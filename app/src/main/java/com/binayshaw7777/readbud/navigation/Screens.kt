@@ -8,5 +8,6 @@ sealed class Screens(val name: String) {
     object ItemListing : Screens(Constants.IMAGE_LISTING)
     object MLKitTextRecognition : Screens(Constants.ML_KIT_RECOGNITION)
     object Settings : Screens(Constants.SETTINGS)
+    object BookView : Screens(Constants.BOOK_VIEW)
 
 }

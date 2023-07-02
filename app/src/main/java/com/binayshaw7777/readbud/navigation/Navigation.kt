@@ -22,11 +22,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.RecognizedTextItem
+import com.binayshaw7777.readbud.ui.screens.book_view.BookViewScreen
 import com.binayshaw7777.readbud.ui.screens.helpers.MLKitTextRecognition
 import com.binayshaw7777.readbud.ui.screens.home.HomeScreen
 import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
 import com.binayshaw7777.readbud.ui.screens.image_screens.image_listing.ImageListing
 import com.binayshaw7777.readbud.ui.screens.settings.SettingsScreens
+import com.binayshaw7777.readbud.utils.Constants.BOOK_VIEW
 import com.binayshaw7777.readbud.utils.Constants.EXTRACTED_TEXT
 import com.binayshaw7777.readbud.utils.Constants.HOME
 import com.binayshaw7777.readbud.utils.Constants.IMAGE_LISTING
@@ -54,7 +56,7 @@ fun Navigation(application: Application) {
     val backStackEntry = navController.currentBackStackEntryAsState()
 
     val screensWithoutNavBar = listOf(
-        Screens.MLKitTextRecognition.name
+        Screens.MLKitTextRecognition.name, Screens.BookView.name
     )
     Scaffold(
         bottomBar = {
@@ -113,7 +115,11 @@ fun Navigation(application: Application) {
         ) {
             composable(HOME) {
                 HomeScreen(scansViewModel,
-                    onFabClicked = { navController.navigate(Screens.ItemListing.name) })
+                    onFabClicked = { navController.navigate(Screens.ItemListing.name) },
+                navigateToBookView = {navController.navigate(Screens.BookView.name)})
+            }
+            composable(BOOK_VIEW) {
+                BookViewScreen(scansViewModel)
             }
             composable(SETTINGS) { SettingsScreens(navController) }
             composable(IMAGE_LISTING) { entry ->
@@ -121,7 +127,6 @@ fun Navigation(application: Application) {
                 ImageListing(
                     text,
                     imageViewModel, scansViewModel,
-                    scansViewModel,
                     onFabClick = { navController.navigate(Screens.MLKitTextRecognition.name) },
                     onNavigateBack = {
                         text = RecognizedTextItem()

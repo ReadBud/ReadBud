@@ -16,6 +16,11 @@ class ScansViewModel(application: Application) : AndroidViewModel(application) {
     private val scanRepository = ScansRepository(application)
     var listOfScans = MutableLiveData<MutableList<Scans>>()
     val onCompleteSaveIntoDB = MutableLiveData<Boolean>()
+    val selectedScanDocument = MutableLiveData<Scans>()
+
+    fun getScannedDocument() : Scans? {
+        return selectedScanDocument.value
+    }
 
 
     fun getAllScans() = viewModelScope.launch(Dispatchers.IO) {
