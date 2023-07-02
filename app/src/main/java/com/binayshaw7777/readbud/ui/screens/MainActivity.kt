@@ -37,17 +37,9 @@ class MainActivity : ComponentActivity() {
                 }
                 // A surface container using the 'background' color from the theme
                 Surface {
-                    Navigation()
+                    Navigation(application)
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ReadBudTheme {
-        Navigation()
     }
 }

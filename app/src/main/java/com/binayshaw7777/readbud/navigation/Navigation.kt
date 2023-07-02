@@ -1,5 +1,6 @@
 package com.binayshaw7777.readbud.navigation
 
+import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -33,7 +34,7 @@ import com.binayshaw7777.readbud.utils.Constants.SETTINGS
 
 
 @Composable
-fun Navigation() {
+fun Navigation(application: Application) {
     val bottomNavItems = listOf(
         BottomNavItem(
             name = "Home",
@@ -99,7 +100,7 @@ fun Navigation() {
             }
         }
     ) {
-        val imageViewModel = ImageViewModel()
+        val imageViewModel = ImageViewModel(application)
         NavHost(
             navController,
             startDestination = HOME,
@@ -113,8 +114,15 @@ fun Navigation() {
             }
             composable(SETTINGS) { SettingsScreens(navController) }
             composable(IMAGE_LISTING) { entry ->
-                val text = entry.savedStateHandle.get<RecognizedTextItem>(EXTRACTED_TEXT)
-                ImageListing(text, imageViewModel, onFabClick = {navController.navigate(Screens.MLKitTextRecognition.name)})
+                var text = entry.savedStateHandle.get<RecognizedTextItem>(EXTRACTED_TEXT)
+                ImageListing(
+                    text,
+                    imageViewModel,
+                    onFabClick = { navController.navigate(Screens.MLKitTextRecognition.name) },
+                    onNavigateBack = {
+                        text = RecognizedTextItem()
+                        navController.navigateUp()
+                    })
             }
             composable(ML_KIT_RECOGNITION) {
                 MLKitTextRecognition(navController)

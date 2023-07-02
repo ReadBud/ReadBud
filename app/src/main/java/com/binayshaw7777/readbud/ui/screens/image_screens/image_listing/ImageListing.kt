@@ -15,12 +15,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -36,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -63,14 +66,30 @@ import eu.wewox.modalsheet.ModalSheet
 fun ImageListing(
     recognizedTextItem: RecognizedTextItem?,
     imageViewModel: ImageViewModel,
-    onFabClick: () -> Unit
+    onFabClick: () -> Unit,
+    onNavigateBack: () -> Unit
 ) {
 
     val cameraPermissionState: PermissionState = rememberPermissionState(Manifest.permission.CAMERA)
 
     val listOfRecognizedTextItem = imageViewModel.recognizedTextItemList.observeAsState()
+    val onCompleteSaveIntoDB = imageViewModel.onCompleteSaveIntoDB.observeAsState()
+
+    if (onCompleteSaveIntoDB.value == true) {
+        imageViewModel.onCompleteSaveIntoDB.postValue(false)
+        onNavigateBack()
+    }
+
     val itemNotAdded = remember {
         mutableStateOf(true)
+    }
+    var onClickSave by remember {
+        mutableStateOf(false)
+    }
+
+    if (onClickSave) {
+        imageViewModel.saveIntoDB()
+        onClickSave = false
     }
 
     recognizedTextItem?.let {
@@ -107,7 +126,8 @@ fun ImageListing(
                         .weight(0.7f)
                 ) {
                     Spacer(modifier = Modifier.height(20.dp))
-                    Row(modifier = Modifier.fillMaxWidth(),
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -158,6 +178,16 @@ fun ImageListing(
                             overflow = TextOverflow.Ellipsis
                         )
                     },
+                    actions = {
+                        if (listOfRecognizedTextItem.value.isNullOrEmpty().not()) {
+                            IconButton(onClick = { onClickSave = true }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Done,
+                                    contentDescription = "Save into Database"
+                                )
+                            }
+                        }
+                    }
                 )
             },
             floatingActionButton = {
