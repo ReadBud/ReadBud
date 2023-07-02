@@ -9,6 +9,7 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,7 +19,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,10 +29,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.utils.Constants.EXTRACTED_TEXT
 import com.binayshaw7777.readbud.utils.Logger
+import com.binayshaw7777.readbud.utils.rotateBitmap
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
@@ -47,13 +48,16 @@ fun MLKitTextRecognition(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val extractedText = remember { mutableStateOf("") }
+    val recognizedTxtItems = remember { mutableStateOf(RecognizedTextItem()) }
     val isClicked = remember {
         mutableStateOf(false)
     }
     if (isClicked.value) {
         Logger.debug("ExtractedTextFromMLKIT: ${extractedText.value}")
-//        onImageCapture(extractedText.value)
-        navController.previousBackStackEntry?.savedStateHandle?.set(EXTRACTED_TEXT,extractedText.value)
+        navController.previousBackStackEntry?.savedStateHandle?.set(
+            EXTRACTED_TEXT,
+            recognizedTxtItems.value
+        )
         isClicked.value = false
         navController.popBackStack()
     }
@@ -65,7 +69,8 @@ fun MLKitTextRecognition(
             context = context,
             lifecycleOwner = lifecycleOwner,
             extractedText = extractedText,
-            isClicked
+            recognizedTextItem = recognizedTxtItems,
+            isClicked = isClicked
         )
     }
 }
@@ -75,6 +80,7 @@ fun TextRecognitionView(
     context: Context,
     lifecycleOwner: LifecycleOwner,
     extractedText: MutableState<String>,
+    recognizedTextItem: MutableState<RecognizedTextItem>,
     isClicked: MutableState<Boolean>
 ) {
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
@@ -85,10 +91,11 @@ fun TextRecognitionView(
         remember { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
 
-    Box {
+    Column(Modifier.background(Color.Black).fillMaxSize()) {
         AndroidView(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxWidth()
+                .fillMaxSize(0.7f),
             factory = { ctx ->
                 val previewView = PreviewView(ctx)
 
@@ -99,7 +106,7 @@ fun TextRecognitionView(
                         .apply {
                             setAnalyzer(
                                 cameraExecutor,
-                                ObjectDetectorImageAnalyzer(textRecognizer, extractedText)
+                                ObjectDetectorImageAnalyzer(textRecognizer, extractedText, recognizedTextItem)
                             )
                         }
                     val cameraSelector = CameraSelector.Builder()
@@ -121,37 +128,21 @@ fun TextRecognitionView(
                 previewView
             }
         )
-
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(15.dp)
-                .align(Alignment.TopStart)
-        ) {
-            IconButton(
-                onClick = {
-                    Toast.makeText(context, "Back Clicked", Toast.LENGTH_SHORT).show()
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "back",
-                    tint = Color.White
-                )
-            }
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(10.dp)
-                .align(Alignment.BottomCenter)
+                .padding(20.dp)
+                .align(Alignment.CenterHorizontally)
                 .background(Color.Transparent)
         ) {
             Button(
-                modifier = Modifier.size(60.dp),
+                modifier = Modifier.size(65.dp).align(Alignment.CenterVertically),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                onClick = { isClicked.value = true },
+                onClick = {
+                    cameraProvider.unbindAll()
+                    isClicked.value = true
+                          },
+                border = BorderStroke(4.dp, Color.Gray),
                 shape = RoundedCornerShape(100)
             ) {
 
@@ -162,7 +153,8 @@ fun TextRecognitionView(
 
 class ObjectDetectorImageAnalyzer(
     private val textRecognizer: TextRecognizer,
-    private val extractedText: MutableState<String>
+    private val extractedText: MutableState<String>,
+    private val recognizedTextItem: MutableState<RecognizedTextItem>
 ) : ImageAnalysis.Analyzer {
     @SuppressLint("UnsafeOptInUsageError")
     override fun analyze(imageProxy: ImageProxy) {
@@ -174,6 +166,10 @@ class ObjectDetectorImageAnalyzer(
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
                         extractedText.value = it.result?.text ?: ""
+                        recognizedTextItem.value = RecognizedTextItem(
+                            extractedText = extractedText.value,
+                            thumbnail = imageProxy.toBitmap().rotateBitmap(90)
+                        )
                     }
                     imageProxy.close()
                 }

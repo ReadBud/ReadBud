@@ -19,8 +19,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.ui.screens.helpers.MLKitTextRecognition
 import com.binayshaw7777.readbud.ui.screens.home.HomeScreen
+import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
 import com.binayshaw7777.readbud.ui.screens.image_screens.image_listing.ImageListing
 import com.binayshaw7777.readbud.ui.screens.settings.SettingsScreens
 import com.binayshaw7777.readbud.utils.Constants.EXTRACTED_TEXT
@@ -52,7 +54,6 @@ fun Navigation() {
     val screensWithoutNavBar = listOf(
         Screens.MLKitTextRecognition.name
     )
-
     Scaffold(
         bottomBar = {
             if (backStackEntry.value?.destination?.route !in screensWithoutNavBar) {
@@ -98,6 +99,7 @@ fun Navigation() {
             }
         }
     ) {
+        val imageViewModel = ImageViewModel()
         NavHost(
             navController,
             startDestination = HOME,
@@ -111,8 +113,8 @@ fun Navigation() {
             }
             composable(SETTINGS) { SettingsScreens(navController) }
             composable(IMAGE_LISTING) { entry ->
-                val text = entry.savedStateHandle.get<String>(EXTRACTED_TEXT)
-                ImageListing(text, onFabClick = {navController.navigate(Screens.MLKitTextRecognition.name)})
+                val text = entry.savedStateHandle.get<RecognizedTextItem>(EXTRACTED_TEXT)
+                ImageListing(text, imageViewModel, onFabClick = {navController.navigate(Screens.MLKitTextRecognition.name)})
             }
             composable(ML_KIT_RECOGNITION) {
                 MLKitTextRecognition(navController)

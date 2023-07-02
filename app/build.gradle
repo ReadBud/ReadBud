@@ -106,6 +106,12 @@ dependencies {
     //MLKit
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition:19.0.0'
 
+    //DataStore (SharedPrefs)
     implementation "androidx.datastore:datastore-preferences:1.0.0"
+
+    //Image Loading
     implementation("io.coil-kt:coil-compose:2.2.2")
+
+    //Bottom sheet
+    implementation 'io.github.oleksandrbalan:modalsheet:0.5.0'
 }
