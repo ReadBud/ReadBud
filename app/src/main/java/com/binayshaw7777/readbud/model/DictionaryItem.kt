@@ -9,7 +9,7 @@ data class DictionaryItem(
     @SerializedName("description") var description: String? = null
 )
 
-sealed class RequestStatus {
-    data class Success(val data: DictionaryItem) : RequestStatus()
-    data class Failure(val error: String) : RequestStatus()
+sealed class DictionaryRequestStatus {
+    data class Success(val data: DictionaryItem) : DictionaryRequestStatus()
+    data class Failure(val error: String) : DictionaryRequestStatus()
 }

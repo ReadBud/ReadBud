@@ -134,7 +134,6 @@ fun HomeScreen(scansViewModel: ScansViewModel, onFabClicked: () -> Unit, navigat
                     listOfAllScans.value?.let {
                         Logger.debug("All items: $listOfAllScans")
                         LazyColumn {
-
                             itemsIndexed(it) { index, item ->
                                 SimpleCardDisplay(
                                     onClick = {

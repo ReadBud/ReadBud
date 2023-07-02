@@ -14,25 +14,44 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.utils.Logger
+import com.binayshaw7777.readbud.utils.getWordMeaningFromString
 import eu.wewox.pagecurl.ExperimentalPageCurlApi
 import eu.wewox.pagecurl.page.PageCurl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPageCurlApi::class)
 @Composable
 fun BookViewScreen(scansViewModel: ScansViewModel) {
-
+    val context = LocalContext.current
     val scannedDocument = scansViewModel.selectedScanDocument.value
+    val currentIndex = remember {
+        mutableStateOf(0)
+    }
     val listOfPages = ArrayList<String>()
     for (page in scannedDocument!!.listOfScans) {
         page.extractedText?.let { listOfPages.add(it) }
     }
+
+    val mapOfJargonWords = HashMap<String, String>()
+    LaunchedEffect(Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            getWordMeaningFromString(listOfPages[currentIndex.value], context)
+        }
+    }
+
     Logger.debug("Scanned doc: $scannedDocument \nand listOfPages: $listOfPages")
 
     Scaffold(
@@ -51,8 +70,11 @@ fun BookViewScreen(scansViewModel: ScansViewModel) {
         Box(
             Modifier
                 .fillMaxSize()
-                .padding(padding)) {
+                .padding(padding)
+        ) {
+
             PageCurl(count = listOfPages.size) { index ->
+                currentIndex.value = index
                 PagePreview(index, listOfPages[index])
             }
         }
