@@ -14,6 +14,4 @@ object Constants {
     const val ML_KIT_RECOGNITION = "ml_kit_recognition"
     const val BOOK_VIEW = "book_view"
     const val EXTRACTED_TEXT = "extracted_text"
-    const val COMMON_WORDS = "common_words.json"
-    const val DICTIONARY = "dictionary.json"
 }
