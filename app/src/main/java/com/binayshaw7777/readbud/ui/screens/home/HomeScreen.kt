@@ -50,6 +50,7 @@ import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
 import com.binayshaw7777.readbud.utils.Constants.IMAGE_LISTING
 import com.binayshaw7777.readbud.utils.Logger
 
+private lateinit var selectedScanItem: Scans
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("PermissionLaunchedDuringComposition")
@@ -62,7 +63,7 @@ fun HomeScreen(scansViewModel: ScansViewModel, onFabClicked: () -> Unit) {
         mutableStateOf(Scans(0, ArrayList()))
     }
     var isSelected by remember { mutableStateOf(false) }
-
+    
     LaunchedEffect(Unit) {
         scansViewModel.getAllScans()
     }
@@ -71,7 +72,6 @@ fun HomeScreen(scansViewModel: ScansViewModel, onFabClicked: () -> Unit) {
         Logger.debug("Selected item: $selectedItem")
         isSelected = false
     }
-
 
     ReadBudTheme(dynamicColor = true) {
         Scaffold(Modifier.fillMaxSize(),
@@ -85,21 +85,21 @@ fun HomeScreen(scansViewModel: ScansViewModel, onFabClicked: () -> Unit) {
                         )
                     },
                 )
-            },floatingActionButton = {
-            FloatingActionButton(
-                modifier = Modifier
-                    .padding(20.dp),
-                onClick = {
-                    onFabClicked()
-                },
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = stringResource(R.string.add_fab),
-                )
-            }
-        }) { padding ->
+            }, floatingActionButton = {
+                FloatingActionButton(
+                    modifier = Modifier
+                        .padding(20.dp),
+                    onClick = {
+                        onFabClicked()
+                    },
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = stringResource(R.string.add_fab),
+                    )
+                }
+            }) { padding ->
             Surface(
                 modifier = Modifier
                     .fillMaxSize()
@@ -145,6 +145,7 @@ fun HomeScreen(scansViewModel: ScansViewModel, onFabClicked: () -> Unit) {
                         }
                     }
                 }
+
             }
         }
     }

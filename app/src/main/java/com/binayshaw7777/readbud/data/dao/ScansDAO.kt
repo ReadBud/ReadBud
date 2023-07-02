@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ScansDAO {
 
-    @Query("SELECT * FROM scans ORDER BY id ASC")
+    @Query("SELECT * FROM scans")
     fun getAllScans(): Flow<List<Scans>>
 
     @Query("SELECT * FROM scans WHERE id = :scansId")

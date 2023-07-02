@@ -121,6 +121,7 @@ fun Navigation(application: Application) {
                 ImageListing(
                     text,
                     imageViewModel, scansViewModel,
+                    scansViewModel,
                     onFabClick = { navController.navigate(Screens.MLKitTextRecognition.name) },
                     onNavigateBack = {
                         text = RecognizedTextItem()
