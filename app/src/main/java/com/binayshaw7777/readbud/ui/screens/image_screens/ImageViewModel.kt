@@ -15,21 +15,13 @@ import kotlinx.coroutines.launch
 
 
 class ImageViewModel(application: Application) : AndroidViewModel(application) {
-    private val _bitmapList = MutableLiveData<List<Bitmap>>()
-    val bitmapList: LiveData<List<Bitmap>> = _bitmapList
 
     private val scansRepository = ScansRepository(application)
 
     private val _recognizedTextItemList = MutableLiveData<List<RecognizedTextItem>>()
     val recognizedTextItemList: LiveData<List<RecognizedTextItem>> = _recognizedTextItemList
 
-    val onCompleteSaveIntoDB = MutableLiveData<Boolean>()
-
-    fun addBitmap(bitmap: Bitmap) {
-        val currentList = _bitmapList.value.orEmpty().toMutableList()
-        currentList.add(bitmap)
-        _bitmapList.value = currentList
-    }
+//    val onCompleteSaveIntoDB = MutableLiveData<Boolean>()
 
     fun addRecognizedTextItems(recognizedTextItem: RecognizedTextItem) {
         val currentList = _recognizedTextItemList.value.orEmpty().toMutableList()
@@ -54,12 +46,12 @@ class ImageViewModel(application: Application) : AndroidViewModel(application) {
             recognizedItem.extractedText
     }
 
-    fun saveIntoDB() = viewModelScope.launch(Dispatchers.IO) {
-        val listOfPages: ArrayList<RecognizedTextItem> =
-            (_recognizedTextItemList.value as ArrayList<RecognizedTextItem>?)!!
-        val scans = Scans(id = 0, listOfScans = listOfPages)
-        scansRepository.addScansToRoom(scans)
-        _recognizedTextItemList.postValue(ArrayList())
-        onCompleteSaveIntoDB.postValue(true)
-    }
+//    fun saveIntoDB() = viewModelScope.launch(Dispatchers.IO) {
+//        val listOfPages: ArrayList<RecognizedTextItem> =
+//            (_recognizedTextItemList.value as ArrayList<RecognizedTextItem>?)!!
+//        val scans = Scans(id = 0, listOfScans = listOfPages)
+//        scansRepository.addScansToRoom(scans)
+//        _recognizedTextItemList.postValue(ArrayList())
+//        onCompleteSaveIntoDB.postValue(true)
+//    }
 }

@@ -42,7 +42,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.components.DocumentCard
-import com.binayshaw7777.readbud.components.HomeScreenScanCards
+import com.binayshaw7777.readbud.components.SimpleCardDisplay
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.model.Scans
@@ -57,19 +57,19 @@ private lateinit var selectedScanItem: Scans
 @Composable
 fun HomeScreen(scansViewModel: ScansViewModel, onFabClicked: () -> Unit) {
 
-    val scansList = scansViewModel.listOfScans.observeAsState()
-    scansViewModel.getAllScans()
+    val listOfAllScans = scansViewModel.listOfScans.observeAsState()
+
+    val selectedItem = remember {
+        mutableStateOf(Scans(0, ArrayList()))
+    }
+    var isSelected by remember { mutableStateOf(false) }
+    
     LaunchedEffect(Unit) {
         scansViewModel.getAllScans()
     }
 
-    var isSelected by remember {
-        mutableStateOf(false)
-    }
-
     if (isSelected) {
-        //Show selected scan here
-        Logger.debug("Selected scan : $selectedScanItem")
+        Logger.debug("Selected item: $selectedItem")
         isSelected = false
     }
 
@@ -129,21 +129,18 @@ fun HomeScreen(scansViewModel: ScansViewModel, onFabClicked: () -> Unit) {
                     ) {
                     }
                     Spacer(modifier = Modifier.height(10.dp))
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        scansList.value?.let {
-                            Logger.debug("Retrieved scan list is: $scansList")
+                    listOfAllScans.value?.let {
+                        Logger.debug("All items: $listOfAllScans")
+                        LazyColumn {
 
-                            LazyColumn {
-                                itemsIndexed(it) { index, item ->
-                                    HomeScreenScanCards(
-                                        onClick = {
-                                            selectedScanItem = item
-                                            isSelected = true
-                                        },
-                                        heading = "Scan no. $index",
-                                        description = ""
-                                    )
-                                }
+                            itemsIndexed(it) { index, item ->
+                                SimpleCardDisplay(
+                                    onClick = {
+                                        selectedItem.value = item
+                                        isSelected = true
+                                    },
+                                    heading = "Scan no. $index",
+                                )
                             }
                         }
                     }

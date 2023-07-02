@@ -38,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -75,10 +74,10 @@ fun ImageListing(
     val cameraPermissionState: PermissionState = rememberPermissionState(Manifest.permission.CAMERA)
 
     val listOfRecognizedTextItem = imageViewModel.recognizedTextItemList.observeAsState()
-    val onCompleteSaveIntoDB = imageViewModel.onCompleteSaveIntoDB.observeAsState()
+    val onCompleteSaveIntoDB = scansViewModel.onCompleteSaveIntoDB.observeAsState()
 
     if (onCompleteSaveIntoDB.value == true) {
-        imageViewModel.onCompleteSaveIntoDB.postValue(false)
+        scansViewModel.onCompleteSaveIntoDB.postValue(false)
         onNavigateBack()
     }
 
@@ -90,7 +89,7 @@ fun ImageListing(
     }
 
     if (onClickSave) {
-        imageViewModel.saveIntoDB()
+        scansViewModel.saveIntoDB(imageViewModel.recognizedTextItemList.value)
         onClickSave = false
     }
 

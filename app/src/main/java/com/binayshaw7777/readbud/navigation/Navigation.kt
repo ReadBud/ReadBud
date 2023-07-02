@@ -112,8 +112,7 @@ fun Navigation(application: Application) {
                 .background(Color.White)
         ) {
             composable(HOME) {
-                HomeScreen(
-                    scansViewModel,
+                HomeScreen(scansViewModel,
                     onFabClicked = { navController.navigate(Screens.ItemListing.name) })
             }
             composable(SETTINGS) { SettingsScreens(navController) }
@@ -121,7 +120,7 @@ fun Navigation(application: Application) {
                 var text = entry.savedStateHandle.get<RecognizedTextItem>(EXTRACTED_TEXT)
                 ImageListing(
                     text,
-                    imageViewModel,
+                    imageViewModel, scansViewModel,
                     scansViewModel,
                     onFabClick = { navController.navigate(Screens.MLKitTextRecognition.name) },
                     onNavigateBack = {
