@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -22,7 +24,9 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,14 +41,37 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.binayshaw7777.readbud.R
+import com.binayshaw7777.readbud.components.DocumentCard
+import com.binayshaw7777.readbud.components.HomeScreenScanCards
+import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
+import com.binayshaw7777.readbud.model.RecognizedTextItem
+import com.binayshaw7777.readbud.model.Scans
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
 import com.binayshaw7777.readbud.utils.Constants.IMAGE_LISTING
+import com.binayshaw7777.readbud.utils.Logger
 
+private lateinit var selectedScanItem: Scans
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("PermissionLaunchedDuringComposition")
 @Composable
-fun HomeScreen(onFabClicked: () -> Unit) {
+fun HomeScreen(scansViewModel: ScansViewModel, onFabClicked: () -> Unit) {
+
+    val scansList = scansViewModel.listOfScans.observeAsState()
+    scansViewModel.getAllScans()
+    LaunchedEffect(Unit) {
+        scansViewModel.getAllScans()
+    }
+
+    var isSelected by remember {
+        mutableStateOf(false)
+    }
+
+    if (isSelected) {
+        //Show selected scan here
+        Logger.debug("Selected scan : $selectedScanItem")
+        isSelected = false
+    }
 
     ReadBudTheme(dynamicColor = true) {
         Scaffold(Modifier.fillMaxSize(),
@@ -58,21 +85,21 @@ fun HomeScreen(onFabClicked: () -> Unit) {
                         )
                     },
                 )
-            },floatingActionButton = {
-            FloatingActionButton(
-                modifier = Modifier
-                    .padding(20.dp),
-                onClick = {
-                    onFabClicked()
-                },
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = stringResource(R.string.add_fab),
-                )
-            }
-        }) { padding ->
+            }, floatingActionButton = {
+                FloatingActionButton(
+                    modifier = Modifier
+                        .padding(20.dp),
+                    onClick = {
+                        onFabClicked()
+                    },
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = stringResource(R.string.add_fab),
+                    )
+                }
+            }) { padding ->
             Surface(
                 modifier = Modifier
                     .fillMaxSize()
@@ -102,14 +129,27 @@ fun HomeScreen(onFabClicked: () -> Unit) {
                     ) {
                     }
                     Spacer(modifier = Modifier.height(10.dp))
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        scansList.value?.let {
+                            Logger.debug("Retrieved scan list is: $scansList")
+
+                            LazyColumn {
+                                itemsIndexed(it) { index, item ->
+                                    HomeScreenScanCards(
+                                        onClick = {
+                                            selectedScanItem = item
+                                            isSelected = true
+                                        },
+                                        heading = "Scan no. $index",
+                                        description = ""
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
+
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun Preview() {
-    HomeScreen {}
 }

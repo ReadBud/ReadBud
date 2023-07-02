@@ -20,6 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.ui.screens.helpers.MLKitTextRecognition
 import com.binayshaw7777.readbud.ui.screens.home.HomeScreen
@@ -101,6 +102,8 @@ fun Navigation(application: Application) {
         }
     ) {
         val imageViewModel = ImageViewModel(application)
+        val scansViewModel = ScansViewModel(application)
+
         NavHost(
             navController,
             startDestination = HOME,
@@ -110,6 +113,7 @@ fun Navigation(application: Application) {
         ) {
             composable(HOME) {
                 HomeScreen(
+                    scansViewModel,
                     onFabClicked = { navController.navigate(Screens.ItemListing.name) })
             }
             composable(SETTINGS) { SettingsScreens(navController) }
@@ -118,6 +122,7 @@ fun Navigation(application: Application) {
                 ImageListing(
                     text,
                     imageViewModel,
+                    scansViewModel,
                     onFabClick = { navController.navigate(Screens.MLKitTextRecognition.name) },
                     onNavigateBack = {
                         text = RecognizedTextItem()

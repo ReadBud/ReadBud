@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ScansDAO {
 
-    @Query("SELECT * FROM scans ORDER BY id ASC")
+    @Query("SELECT * FROM scans")
     fun getAllScans(): Flow<List<Scans>>
 
     @Query("SELECT * FROM scans WHERE id = :scansId")
@@ -26,6 +26,9 @@ interface ScansDAO {
     suspend fun updateScans(scansModel: Scans)
 
     @Delete
-    suspend fun deleteSCANS(scansModel: Scans)
+    suspend fun deleteScans(scansModel: Scans)
+
+    @Query("DELETE FROM scans")
+    suspend fun deleteAllScans()
 
 }

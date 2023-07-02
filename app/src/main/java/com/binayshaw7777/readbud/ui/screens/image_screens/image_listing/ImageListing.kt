@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.components.DocumentCard
+import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
@@ -66,6 +67,7 @@ import eu.wewox.modalsheet.ModalSheet
 fun ImageListing(
     recognizedTextItem: RecognizedTextItem?,
     imageViewModel: ImageViewModel,
+    scansViewModel: ScansViewModel,
     onFabClick: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
