@@ -24,6 +24,12 @@ class ImageViewModel() : ViewModel() {
 
     fun addRecognizedTextItems(recognizedTextItem: RecognizedTextItem) {
         val currentList = _recognizedTextItemList.value.orEmpty().toMutableList()
+        if (currentList.isEmpty().not()) {
+            val previousScanText = currentList[currentList.size - 1].extractedText
+            if (recognizedTextItem.extractedText == previousScanText) {
+                return
+            }
+        }
         val lastIndex = if (currentList.isEmpty()) -1
         else
             currentList[currentList.size - 1].index
@@ -32,5 +38,10 @@ class ImageViewModel() : ViewModel() {
         recognizedTextItem.index = newIndex
         currentList.add(recognizedTextItem)
         _recognizedTextItemList.value = currentList
+    }
+
+    fun updateRecognizedItem(recognizedItem: RecognizedTextItem) {
+        _recognizedTextItemList.value?.get(recognizedItem.index)?.extractedText =
+            recognizedItem.extractedText
     }
 }

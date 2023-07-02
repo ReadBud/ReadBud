@@ -24,12 +24,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun DocumentCard(thumbnail: Bitmap, heading: String, description: String?) {
+fun DocumentCard(onClick: () -> Unit, thumbnail: Bitmap, heading: String, description: String?) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(0.dp, 10.dp)
-            .clickable { },
+            .clickable { onClick() },
     ) {
         Row(
             modifier = Modifier
