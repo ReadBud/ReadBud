@@ -26,6 +26,9 @@ interface ScansDAO {
     suspend fun updateScans(scansModel: Scans)
 
     @Delete
-    suspend fun deleteSCANS(scansModel: Scans)
+    suspend fun deleteScans(scansModel: Scans)
+
+    @Query("DELETE FROM scans")
+    suspend fun deleteAllScans()
 
 }

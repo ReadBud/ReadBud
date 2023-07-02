@@ -24,5 +24,7 @@ class ScansRepository(application: Application) {
 
     suspend fun updateScansInRoom(scan: Scans) = scansDAO.updateScans(scan)
 
-    suspend fun deleteScansFromRoom(scan: Scans) = scansDAO.deleteSCANS(scan)
+    suspend fun deleteScansFromRoom(scan: Scans) = scansDAO.deleteScans(scan)
+
+    suspend fun deleteAllScans() = scansDAO.deleteAllScans()
 }

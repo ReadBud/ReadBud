@@ -38,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -47,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.components.DocumentCard
+import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
@@ -66,6 +66,7 @@ import eu.wewox.modalsheet.ModalSheet
 fun ImageListing(
     recognizedTextItem: RecognizedTextItem?,
     imageViewModel: ImageViewModel,
+    scansViewModel: ScansViewModel,
     onFabClick: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
@@ -73,10 +74,10 @@ fun ImageListing(
     val cameraPermissionState: PermissionState = rememberPermissionState(Manifest.permission.CAMERA)
 
     val listOfRecognizedTextItem = imageViewModel.recognizedTextItemList.observeAsState()
-    val onCompleteSaveIntoDB = imageViewModel.onCompleteSaveIntoDB.observeAsState()
+    val onCompleteSaveIntoDB = scansViewModel.onCompleteSaveIntoDB.observeAsState()
 
     if (onCompleteSaveIntoDB.value == true) {
-        imageViewModel.onCompleteSaveIntoDB.postValue(false)
+        scansViewModel.onCompleteSaveIntoDB.postValue(false)
         onNavigateBack()
     }
 
@@ -88,7 +89,7 @@ fun ImageListing(
     }
 
     if (onClickSave) {
-        imageViewModel.saveIntoDB()
+        scansViewModel.saveIntoDB(imageViewModel.recognizedTextItemList.value)
         onClickSave = false
     }
 
