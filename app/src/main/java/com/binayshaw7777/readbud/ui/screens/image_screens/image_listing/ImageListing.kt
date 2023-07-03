@@ -88,10 +88,67 @@ fun ImageListing(
         mutableStateOf(false)
     }
 
-    if (onClickSave) {
-        scansViewModel.saveIntoDB(imageViewModel.recognizedTextItemList.value)
-        onClickSave = false
+    ModalSheet(
+        visible = onClickSave,
+        onVisibleChange = { onClickSave = it },
+        backgroundColor = MaterialTheme.colorScheme.surface
+    ) {
+        var scanName by remember {
+            mutableStateOf("")
+        }
+
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Save file name as",
+                fontSize = 16.sp,
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = scanName,
+                onValueChange = { scanName = it },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+                    errorIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(onClick = {
+                    onClickSave = false
+                }) {
+                    Text(text = "Cancel")
+                }
+                Button(onClick = {
+                    scansViewModel.saveIntoDB(
+                        scanName,
+                        imageViewModel.clearAllRecognizedTextItems()
+                    )
+                    onClickSave = false
+                }) {
+                    Text(text = "Save")
+                }
+            }
+        }
     }
+
 
     recognizedTextItem?.let {
         if (itemNotAdded.value && it.extractedText?.isNotEmpty() == true) {
@@ -181,7 +238,10 @@ fun ImageListing(
                     },
                     actions = {
                         if (listOfRecognizedTextItem.value.isNullOrEmpty().not()) {
-                            IconButton(onClick = { onClickSave = true }) {
+                            IconButton(onClick = {
+                                Logger.debug("Clicked on save")
+                                onClickSave = true
+                            }) {
                                 Icon(
                                     imageVector = Icons.Filled.Done,
                                     contentDescription = "Save into Database"

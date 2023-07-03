@@ -21,7 +21,11 @@ class ImageViewModel(application: Application) : AndroidViewModel(application) {
     private val _recognizedTextItemList = MutableLiveData<List<RecognizedTextItem>>()
     val recognizedTextItemList: LiveData<List<RecognizedTextItem>> = _recognizedTextItemList
 
-//    val onCompleteSaveIntoDB = MutableLiveData<Boolean>()
+    fun clearAllRecognizedTextItems() : List<RecognizedTextItem>? {
+        val currentList = _recognizedTextItemList.value
+        _recognizedTextItemList.postValue(emptyList())
+        return currentList
+    }
 
     fun addRecognizedTextItems(recognizedTextItem: RecognizedTextItem) {
         val currentList = _recognizedTextItemList.value.orEmpty().toMutableList()

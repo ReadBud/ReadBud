@@ -31,12 +31,15 @@ fun loadDictionaryFromJson(context: Context, fileName: String): HashMap<String, 
     return HashMap()
 }
 
-suspend fun getWordMeaningFromString(extractedText: String, context: Context): HashMap<String, String> {
+suspend fun getWordMeaningFromString(
+    pages: List<String>,
+    context: Context
+): HashMap<String, String> {
     val jargonWordsCaught: HashMap<String, String> = HashMap()
     withContext(Dispatchers.IO) {
         val commonWordsList: List<String> = fetchWordListFromJSON(context, COMMON_WORDS)
         val dictionary: HashMap<String, String> = loadDictionaryFromJson(context, DICTIONARY)
-        val jargonWords: List<String> = findJargonWords(extractedText, commonWordsList)
+        val jargonWords: List<String> = findJargonWords(pages, commonWordsList)
         Logger.debug("Jargon words from String: $jargonWords")
 
         for (word in jargonWords) {
@@ -49,18 +52,19 @@ suspend fun getWordMeaningFromString(extractedText: String, context: Context): H
     return jargonWordsCaught
 }
 
-fun findJargonWords(paragraph: String, commonWordsList: List<String>): List<String> {
+fun findJargonWords(pages: List<String>, commonWordsList: List<String>): List<String> {
     val jargonWordsList = mutableListOf<String>()
-    val words = paragraph.split("\\s+".toRegex()) // Split paragraph into individual words
+    for (paragraph in pages) {
+        val words = paragraph.split("\\s+".toRegex()) // Split paragraph into individual words
 
-    for (word in words) {
-        val normalizedWord =
-            word.replace("[^A-Za-z]".toRegex(), "") // Remove non-alphabetic characters
-        if (normalizedWord.isNotEmpty() && normalizedWord !in commonWordsList) {
-            jargonWordsList.add(normalizedWord)
+        for (word in words) {
+            val normalizedWord =
+                word.replace("[^A-Za-z]".toRegex(), "") // Remove non-alphabetic characters
+            if (normalizedWord.isNotEmpty() && normalizedWord !in commonWordsList) {
+                jargonWordsList.add(normalizedWord)
+            }
         }
     }
-
     return jargonWordsList
 }
 
@@ -81,5 +85,15 @@ fun loadJSONFromAsset(context: Context, fileName: String): String? {
 
 fun fetchWordListFromJSON(context: Context, fileName: String): List<String> {
     val jsonString = loadJSONFromAsset(context, fileName)
-    return Gson().fromJson(jsonString, WordsData::class.java).Words
+    return try {
+        Gson().fromJson(jsonString, WordsData::class.java).Words
+    } catch (e: Exception) {
+        Logger.debug("Exception: $e")
+        ArrayList()
+    }
+}
+
+fun jsonToHashMap(jsonString: String): HashMap<String, String> {
+    val type = object : TypeToken<HashMap<String, String>>() {}.type
+    return Gson().fromJson(jsonString, type)
 }

@@ -10,7 +10,7 @@ import com.binayshaw7777.readbud.model.Converters
 import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.model.Scans
 
-@Database(entities = [RecognizedTextItem::class, Scans::class], version = 1)
+@Database(entities = [Scans::class], version = 2)
 @TypeConverters(Converters::class)
 abstract class ScansDatabase : RoomDatabase() {
 

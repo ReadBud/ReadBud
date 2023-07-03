@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -55,15 +56,19 @@ private lateinit var selectedScanItem: Scans
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("PermissionLaunchedDuringComposition")
 @Composable
-fun HomeScreen(scansViewModel: ScansViewModel, onFabClicked: () -> Unit, navigateToBookView: () -> Unit) {
+fun HomeScreen(
+    scansViewModel: ScansViewModel,
+    onFabClicked: () -> Unit,
+    navigateToBookView: () -> Unit
+) {
 
     val listOfAllScans = scansViewModel.listOfScans.observeAsState()
 
     val selectedItem = remember {
-        mutableStateOf(Scans(0, ArrayList()))
+        mutableStateOf(Scans(0, "", ArrayList(), ""))
     }
     var isSelected by remember { mutableStateOf(false) }
-    
+
     LaunchedEffect(Unit) {
         scansViewModel.getAllScans()
     }
@@ -134,14 +139,13 @@ fun HomeScreen(scansViewModel: ScansViewModel, onFabClicked: () -> Unit, navigat
                     listOfAllScans.value?.let {
                         Logger.debug("All items: $listOfAllScans")
                         LazyColumn {
-
-                            itemsIndexed(it) { index, item ->
+                            items(it) { item ->
                                 SimpleCardDisplay(
                                     onClick = {
                                         selectedItem.value = item
                                         isSelected = true
                                     },
-                                    heading = "Scan no. $index",
+                                    heading = item.scanName,
                                 )
                             }
                         }

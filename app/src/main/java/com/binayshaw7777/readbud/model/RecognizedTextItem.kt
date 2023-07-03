@@ -8,11 +8,9 @@ import androidx.room.TypeConverters
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-@Entity("recognized_text_item")
 data class RecognizedTextItem(
     @PrimaryKey(autoGenerate = false)
     var index: Int = 0,
     var extractedText: String? = "",
-    @TypeConverters(Converters::class)
     var thumbnail: Bitmap? = null
 ) : Parcelable

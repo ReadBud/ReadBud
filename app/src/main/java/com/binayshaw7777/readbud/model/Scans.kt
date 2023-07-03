@@ -12,8 +12,10 @@ import kotlinx.parcelize.Parcelize
 data class Scans(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
+    var scanName: String,
     @TypeConverters(Converters::class)
-    var listOfScans: ArrayList<RecognizedTextItem>
+    var pages: ArrayList<String>,
+    var wordMeaningsJson: String
 ) : Parcelable
 
 
