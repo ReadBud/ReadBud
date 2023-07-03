@@ -71,7 +71,7 @@ fun ReadBudTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-
+    val darkTheme = false
     val colors = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         val context = LocalContext.current
         if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)

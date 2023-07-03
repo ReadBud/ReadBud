@@ -1,25 +1,30 @@
 package com.binayshaw7777.readbud.ui.screens.image_screens
 
+import android.app.Application
 import android.graphics.Bitmap
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.binayshaw7777.readbud.data.repository.ScansRepository
 import com.binayshaw7777.readbud.model.RecognizedTextItem
+import com.binayshaw7777.readbud.model.Scans
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
-class ImageViewModel() : ViewModel() {
-    private val _bitmapList = MutableLiveData<List<Bitmap>>()
-    val bitmapList: LiveData<List<Bitmap>> = _bitmapList
+class ImageViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val scansRepository = ScansRepository(application)
 
     private val _recognizedTextItemList = MutableLiveData<List<RecognizedTextItem>>()
     val recognizedTextItemList: LiveData<List<RecognizedTextItem>> = _recognizedTextItemList
-//    val setOfRecognizedTextItem
 
-
-    fun addBitmap(bitmap: Bitmap) {
-        val currentList = _bitmapList.value.orEmpty().toMutableList()
-        currentList.add(bitmap)
-        _bitmapList.value = currentList
+    fun clearAllRecognizedTextItems() : List<RecognizedTextItem>? {
+        val currentList = _recognizedTextItemList.value
+        _recognizedTextItemList.postValue(emptyList())
+        return currentList
     }
 
     fun addRecognizedTextItems(recognizedTextItem: RecognizedTextItem) {
@@ -44,4 +49,13 @@ class ImageViewModel() : ViewModel() {
         _recognizedTextItemList.value?.get(recognizedItem.index)?.extractedText =
             recognizedItem.extractedText
     }
+
+//    fun saveIntoDB() = viewModelScope.launch(Dispatchers.IO) {
+//        val listOfPages: ArrayList<RecognizedTextItem> =
+//            (_recognizedTextItemList.value as ArrayList<RecognizedTextItem>?)!!
+//        val scans = Scans(id = 0, listOfScans = listOfPages)
+//        scansRepository.addScansToRoom(scans)
+//        _recognizedTextItemList.postValue(ArrayList())
+//        onCompleteSaveIntoDB.postValue(true)
+//    }
 }

@@ -1,7 +1,6 @@
 package com.binayshaw7777.readbud.ui.screens.settings
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -35,7 +33,6 @@ import androidx.navigation.compose.rememberNavController
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.model.SettingsItems
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
-import com.binayshaw7777.readbud.utils.Logger
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,12 +43,9 @@ fun SettingsScreens(navController: NavHostController) {
     settingsItem.add(Pair(R.drawable.storage_icon, stringResource(R.string.storage_and_data)))
     settingsItem.add(Pair(R.drawable.about_icon, stringResource(R.string.about)))
 
-//    val isDarkTheme = remember { mutableStateOf(true) }
-
     val onClickItem = remember {
         mutableStateOf(-1)
     }
-
 
     ReadBudTheme(dynamicColor = true) {
 
@@ -61,7 +55,7 @@ fun SettingsScreens(navController: NavHostController) {
             )
             ) {
                 SettingsItems.APPEARANCE -> {
-//                    isDarkTheme.value = isDarkTheme.value.not()
+
                 }
 
                 SettingsItems.STORAGE -> {

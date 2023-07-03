@@ -15,12 +15,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -44,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.components.DocumentCard
+import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
@@ -63,15 +66,89 @@ import eu.wewox.modalsheet.ModalSheet
 fun ImageListing(
     recognizedTextItem: RecognizedTextItem?,
     imageViewModel: ImageViewModel,
-    onFabClick: () -> Unit
+    scansViewModel: ScansViewModel,
+    onFabClick: () -> Unit,
+    onNavigateBack: () -> Unit
 ) {
 
     val cameraPermissionState: PermissionState = rememberPermissionState(Manifest.permission.CAMERA)
 
     val listOfRecognizedTextItem = imageViewModel.recognizedTextItemList.observeAsState()
+    val onCompleteSaveIntoDB = scansViewModel.onCompleteSaveIntoDB.observeAsState()
+
+    if (onCompleteSaveIntoDB.value == true) {
+        scansViewModel.onCompleteSaveIntoDB.postValue(false)
+        onNavigateBack()
+    }
+
     val itemNotAdded = remember {
         mutableStateOf(true)
     }
+    var onClickSave by remember {
+        mutableStateOf(false)
+    }
+
+    ModalSheet(
+        visible = onClickSave,
+        onVisibleChange = { onClickSave = it },
+        backgroundColor = MaterialTheme.colorScheme.surface
+    ) {
+        var scanName by remember {
+            mutableStateOf("")
+        }
+
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Save file name as",
+                fontSize = 16.sp,
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = scanName,
+                onValueChange = { scanName = it },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+                    errorIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(onClick = {
+                    onClickSave = false
+                }) {
+                    Text(text = "Cancel")
+                }
+                Button(onClick = {
+                    scansViewModel.saveIntoDB(
+                        scanName,
+                        imageViewModel.clearAllRecognizedTextItems()
+                    )
+                    onClickSave = false
+                }) {
+                    Text(text = "Save")
+                }
+            }
+        }
+    }
+
 
     recognizedTextItem?.let {
         if (itemNotAdded.value && it.extractedText?.isNotEmpty() == true) {
@@ -107,7 +184,8 @@ fun ImageListing(
                         .weight(0.7f)
                 ) {
                     Spacer(modifier = Modifier.height(20.dp))
-                    Row(modifier = Modifier.fillMaxWidth(),
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -158,6 +236,19 @@ fun ImageListing(
                             overflow = TextOverflow.Ellipsis
                         )
                     },
+                    actions = {
+                        if (listOfRecognizedTextItem.value.isNullOrEmpty().not()) {
+                            IconButton(onClick = {
+                                Logger.debug("Clicked on save")
+                                onClickSave = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Done,
+                                    contentDescription = "Save into Database"
+                                )
+                            }
+                        }
+                    }
                 )
             },
             floatingActionButton = {

@@ -1,5 +1,6 @@
 package com.binayshaw7777.readbud.navigation
 
+import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -19,12 +20,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.RecognizedTextItem
+import com.binayshaw7777.readbud.ui.screens.book_view.BookViewScreen
 import com.binayshaw7777.readbud.ui.screens.helpers.MLKitTextRecognition
 import com.binayshaw7777.readbud.ui.screens.home.HomeScreen
 import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
 import com.binayshaw7777.readbud.ui.screens.image_screens.image_listing.ImageListing
 import com.binayshaw7777.readbud.ui.screens.settings.SettingsScreens
+import com.binayshaw7777.readbud.utils.Constants.BOOK_VIEW
 import com.binayshaw7777.readbud.utils.Constants.EXTRACTED_TEXT
 import com.binayshaw7777.readbud.utils.Constants.HOME
 import com.binayshaw7777.readbud.utils.Constants.IMAGE_LISTING
@@ -33,7 +37,7 @@ import com.binayshaw7777.readbud.utils.Constants.SETTINGS
 
 
 @Composable
-fun Navigation() {
+fun Navigation(application: Application) {
     val bottomNavItems = listOf(
         BottomNavItem(
             name = "Home",
@@ -52,7 +56,7 @@ fun Navigation() {
     val backStackEntry = navController.currentBackStackEntryAsState()
 
     val screensWithoutNavBar = listOf(
-        Screens.MLKitTextRecognition.name
+        Screens.MLKitTextRecognition.name, Screens.BookView.name
     )
     Scaffold(
         bottomBar = {
@@ -99,7 +103,9 @@ fun Navigation() {
             }
         }
     ) {
-        val imageViewModel = ImageViewModel()
+        val imageViewModel = ImageViewModel(application)
+        val scansViewModel = ScansViewModel(application)
+
         NavHost(
             navController,
             startDestination = HOME,
@@ -108,13 +114,24 @@ fun Navigation() {
                 .background(Color.White)
         ) {
             composable(HOME) {
-                HomeScreen(
-                    onFabClicked = { navController.navigate(Screens.ItemListing.name) })
+                HomeScreen(scansViewModel,
+                    onFabClicked = { navController.navigate(Screens.ItemListing.name) },
+                navigateToBookView = {navController.navigate(Screens.BookView.name)})
+            }
+            composable(BOOK_VIEW) {
+                BookViewScreen(scansViewModel)
             }
             composable(SETTINGS) { SettingsScreens(navController) }
             composable(IMAGE_LISTING) { entry ->
-                val text = entry.savedStateHandle.get<RecognizedTextItem>(EXTRACTED_TEXT)
-                ImageListing(text, imageViewModel, onFabClick = {navController.navigate(Screens.MLKitTextRecognition.name)})
+                var text = entry.savedStateHandle.get<RecognizedTextItem>(EXTRACTED_TEXT)
+                ImageListing(
+                    text,
+                    imageViewModel, scansViewModel,
+                    onFabClick = { navController.navigate(Screens.MLKitTextRecognition.name) },
+                    onNavigateBack = {
+                        text = RecognizedTextItem()
+                        navController.navigateUp()
+                    })
             }
             composable(ML_KIT_RECOGNITION) {
                 MLKitTextRecognition(navController)
