@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.AlertDialog
@@ -75,18 +74,15 @@ fun HomeScreen(
     if (deleteAllScansDialogState.value) {
         AlertDialog(
             onDismissRequest = {
-                // Dismiss the dialog when the user clicks outside the dialog or on the back
-                // button. If you want to disable that functionality, simply use an empty
-                // onDismissRequest.
                 deleteAllScansDialogState.value = false
             },
             icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
             title = {
-                Text(text = "Delete all scans")
+                Text(text = stringResource(R.string.delete_all_scans))
             },
             text = {
                 Text(
-                    "Do you want to clear all scans permanently?"
+                    stringResource(R.string.do_you_want_to_clear_all_scans_permanently)
                 )
             },
             confirmButton = {
@@ -96,7 +92,7 @@ fun HomeScreen(
                         deleteAllScansDialogState.value = false
                     }
                 ) {
-                    Text("Delete")
+                    Text(stringResource(R.string.delete))
                 }
             },
             dismissButton = {
@@ -105,7 +101,7 @@ fun HomeScreen(
                         deleteAllScansDialogState.value = false
                     }
                 ) {
-                    Text("Don't Delete")
+                    Text(stringResource(R.string.don_t_delete))
                 }
             }
         )
@@ -123,11 +119,13 @@ fun HomeScreen(
                         )
                     },
                     actions = {
-                        IconButton(onClick = { deleteAllScansDialogState.value = true }) {
-                            Icon(
-                                imageVector = Icons.Filled.Delete,
-                                contentDescription = "Localized description"
-                            )
+                        if (listOfAllScans.isNotEmpty()) {
+                            IconButton(onClick = { deleteAllScansDialogState.value = true }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Delete,
+                                    contentDescription = stringResource(R.string.delete_action)
+                                )
+                            }
                         }
                     }
                 )
