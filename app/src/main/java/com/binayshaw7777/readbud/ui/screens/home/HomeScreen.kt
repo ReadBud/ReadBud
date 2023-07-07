@@ -13,16 +13,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -53,6 +58,7 @@ fun HomeScreen(
 ) {
 
     val listOfAllScans by scansViewModel.listOfScans.observeAsState(listOf())
+    val deleteAllScansDialogState = remember { mutableStateOf(false) }
 
     val selectedItem = remember {
         mutableStateOf(Scans(0, "", ArrayList(), ""))
@@ -66,6 +72,45 @@ fun HomeScreen(
         navigateToBookView()
     }
 
+    if (deleteAllScansDialogState.value) {
+        AlertDialog(
+            onDismissRequest = {
+                // Dismiss the dialog when the user clicks outside the dialog or on the back
+                // button. If you want to disable that functionality, simply use an empty
+                // onDismissRequest.
+                deleteAllScansDialogState.value = false
+            },
+            icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+            title = {
+                Text(text = "Delete all scans")
+            },
+            text = {
+                Text(
+                    "Do you want to clear all scans permanently?"
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        scansViewModel.deleteAllScans()
+                        deleteAllScansDialogState.value = false
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        deleteAllScansDialogState.value = false
+                    }
+                ) {
+                    Text("Don't Delete")
+                }
+            }
+        )
+    }
+
     ReadBudTheme(dynamicColor = true) {
         Scaffold(Modifier.fillMaxSize(),
             topBar = {
@@ -77,6 +122,14 @@ fun HomeScreen(
                             overflow = TextOverflow.Ellipsis
                         )
                     },
+                    actions = {
+                        IconButton(onClick = { deleteAllScansDialogState.value = true }) {
+                            Icon(
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = "Localized description"
+                            )
+                        }
+                    }
                 )
             }, floatingActionButton = {
                 FloatingActionButton(

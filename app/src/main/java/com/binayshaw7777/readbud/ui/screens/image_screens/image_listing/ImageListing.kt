@@ -38,6 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -265,7 +267,7 @@ fun ImageListing(
                     shape = RoundedCornerShape(16.dp),
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Add,
+                        painter = painterResource(id = R.drawable.camera_icon),
                         contentDescription = stringResource(R.string.add_fab),
                     )
                 }
