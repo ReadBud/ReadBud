@@ -28,6 +28,8 @@ The purpose of this app is very simple and straightforward. To use this app you 
 
 ## Architecture 👷‍♂️
 
+![Architecture Flow](https://github.com/binayshaw7777/ReadBud/assets/62587060/8e1f3f20-cd4e-4c8c-9909-50d554baec49)
+
 This app uses [MVVM(Model View View-Model)](https://developer.android.com/topic/architecture#recommended-app-arch) architecture.
 
 ## Flow of the app 🗺
