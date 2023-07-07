@@ -32,6 +32,24 @@ This app uses [MVVM(Model View View-Model)](https://developer.android.com/topic/
 
 ## Flow of the app 🗺
 
+```mermaid
+flowchart TD
+    840792(("Start")) --> A[Main Activity]
+    A(Main Activity)
+    A --> B[Home screen]
+    A --> C[Settings screen]
+    B --> H[List of all Scans]
+    H --> |Diplay text with styling| D[BookView]
+    B --> E[Select Images]
+    E --> |Click via camera and return| F[Camera Preview]
+    E --> |Pick from Gallery and return| G[Gallery Preview]
+    E --> |On Save Click| 364698[("Room Database")]
+    364698 --> |Get all lists| H
+    C --> I[Appearance]
+    C --> J[Storage]
+    C --> K[About]
+```
+
 ## Launched and featured on
 <!--a href="https://www.producthunt.com/posts/justap?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-justap" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=382778&theme=light" alt="JusTap - Just&#0032;tap&#0044;&#0032;scan&#0044;&#0032;and&#0032;connect&#0033; | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a> <a href="https://play.google.com/store/apps/details?id=com.binay.shaw.justap"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" height=84px /></a-->
 
