@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -25,7 +24,6 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -34,24 +32,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.binayshaw7777.readbud.R
-import com.binayshaw7777.readbud.components.DocumentCard
 import com.binayshaw7777.readbud.components.SimpleCardDisplay
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
-import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.model.Scans
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
-import com.binayshaw7777.readbud.utils.Constants.IMAGE_LISTING
 import com.binayshaw7777.readbud.utils.Logger
 
-private lateinit var selectedScanItem: Scans
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("PermissionLaunchedDuringComposition")
@@ -62,16 +52,12 @@ fun HomeScreen(
     navigateToBookView: () -> Unit
 ) {
 
-    val listOfAllScans = scansViewModel.listOfScans.observeAsState()
+    val listOfAllScans by scansViewModel.listOfScans.observeAsState(listOf())
 
     val selectedItem = remember {
         mutableStateOf(Scans(0, "", ArrayList(), ""))
     }
     var isSelected by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        scansViewModel.getAllScans()
-    }
 
     if (isSelected) {
         Logger.debug("Selected item: $selectedItem")
@@ -136,10 +122,10 @@ fun HomeScreen(
                     ) {
                     }
                     Spacer(modifier = Modifier.height(10.dp))
-                    listOfAllScans.value?.let {
+                    if (listOfAllScans.isNotEmpty()) {
                         Logger.debug("All items: $listOfAllScans")
                         LazyColumn {
-                            items(it) { item ->
+                            items(listOfAllScans) { item ->
                                 SimpleCardDisplay(
                                     onClick = {
                                         selectedItem.value = item

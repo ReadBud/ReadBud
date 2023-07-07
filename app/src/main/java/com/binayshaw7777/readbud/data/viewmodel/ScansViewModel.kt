@@ -3,6 +3,7 @@ package com.binayshaw7777.readbud.data.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.binayshaw7777.readbud.data.repository.ScansRepository
 import com.binayshaw7777.readbud.model.RecognizedTextItem
@@ -15,24 +16,12 @@ import kotlinx.coroutines.launch
 
 class ScansViewModel(private val application: Application) : AndroidViewModel(application) {
     private val scanRepository = ScansRepository(application)
-    var listOfScans = MutableLiveData<MutableList<Scans>>()
+    var listOfScans = scanRepository.getAllScansFromRoom().asLiveData()
     val onCompleteSaveIntoDB = MutableLiveData<Boolean>()
     val selectedScanDocument = MutableLiveData<Scans>()
 
     fun getScannedDocument() : Scans? {
         return selectedScanDocument.value
-    }
-
-
-    fun getAllScans() = viewModelScope.launch(Dispatchers.IO) {
-        scanRepository.getAllScansFromRoom().collect { scans ->
-            listOfScans.value?.clear()
-            for (scan in scans) {
-                val current = listOfScans.value ?: mutableListOf()
-                current.add(scan)
-                listOfScans.postValue(current)
-            }
-        }
     }
 
     fun saveIntoDB(scanName: String, listOfPages: List<RecognizedTextItem>?) = viewModelScope.launch(Dispatchers.IO) {

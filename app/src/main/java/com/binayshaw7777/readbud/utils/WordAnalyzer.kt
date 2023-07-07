@@ -60,7 +60,7 @@ fun findJargonWords(pages: List<String>, commonWordsList: List<String>): List<St
         for (word in words) {
             val normalizedWord =
                 word.replace("[^A-Za-z]".toRegex(), "") // Remove non-alphabetic characters
-            if (normalizedWord.isNotEmpty() && normalizedWord !in commonWordsList) {
+            if (normalizedWord.isNotEmpty() && normalizedWord.lowercase() !in commonWordsList) {
                 jargonWordsList.add(normalizedWord)
             }
         }
