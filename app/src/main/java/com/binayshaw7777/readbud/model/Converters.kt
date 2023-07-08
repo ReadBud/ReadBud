@@ -7,22 +7,6 @@ import com.google.gson.reflect.TypeToken
 
 
 class Converters {
-    //    @TypeConverter
-//    fun fromBitmap(bitmap: Bitmap?): ByteArray? {
-//        val outputStream = ByteArrayOutputStream()
-//        if (bitmap != null) {
-//            bitmap.compress(Bitmap.CompressFormat.PNG, 10, outputStream)
-//            return outputStream.toByteArray()
-//        }
-//        return null
-//    }
-//
-//    @TypeConverter
-//    fun toBitmap(byteArray: ByteArray?): Bitmap? {
-//        return if (byteArray != null)
-//            BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-//        else null
-//    }
 
     @TypeConverter
     fun fromJson(value: String): HashMap<String, String> {

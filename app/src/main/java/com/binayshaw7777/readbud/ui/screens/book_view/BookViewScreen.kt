@@ -15,13 +15,16 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,7 +33,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -38,8 +40,6 @@ import androidx.compose.ui.unit.sp
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.utils.Logger
 import com.binayshaw7777.readbud.utils.jsonToHashMap
-import eu.wewox.modalsheet.ExperimentalSheetApi
-import eu.wewox.modalsheet.ModalSheet
 import eu.wewox.pagecurl.ExperimentalPageCurlApi
 import eu.wewox.pagecurl.page.PageCurl
 import java.util.Locale
@@ -85,7 +85,7 @@ fun BookViewScreen(scansViewModel: ScansViewModel) {
 
 }
 
-@OptIn(ExperimentalSheetApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PagePreview(
     index: Int,
@@ -102,32 +102,12 @@ fun PagePreview(
             Pair("", "")
         )
     }
-    ModalSheet(
-        visible = showBottomSheet.value,
-        onVisibleChange = { showBottomSheet.value = it },
-        backgroundColor = MaterialTheme.colorScheme.surface
-    ) {
-        Column(
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Word meaning",
-                fontSize = 16.sp,
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = selectedPair.value.first)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = selectedPair.value.second)
-        }
-    }
+    val skipPartiallyExpanded by remember { mutableStateOf(false) }
+    val bottomSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = skipPartiallyExpanded
+    )
+
+    Definition(showBottomSheet, selectedPair, bottomSheetState)
 
     Box(
         modifier = modifier
@@ -167,6 +147,39 @@ fun PagePreview(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Definition(
+    showBottomSheet: MutableState<Boolean>,
+    selectedPair: MutableState<Pair<String, String>>,
+    bottomSheetState: SheetState
+) {
+
+    // Sheet content
+    if (showBottomSheet.value) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet.value = false },
+            sheetState = bottomSheetState,
+        ) {
+            Column(
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(20.dp)
+            ) {
+                Text(
+                    text = selectedPair.value.first,
+                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 30.sp, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = selectedPair.value.second)
+            }
+        }
+    }
+}
+
 @Composable
 fun DisplayParagraphWithMeanings(
     words: List<String>,
@@ -181,7 +194,12 @@ fun DisplayParagraphWithMeanings(
                 append("$word ")
             } else {
                 pushStringAnnotation(tag = "meaning", annotation = meaning)
-                withStyle(style = SpanStyle(background = Color.Yellow, fontWeight = FontWeight.SemiBold)) {
+                withStyle(
+                    style = SpanStyle(
+                        background = Color.Yellow,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                ) {
                     Logger.debug("Appending with style: $word")
                     append(word)
                 }
@@ -191,23 +209,26 @@ fun DisplayParagraphWithMeanings(
         }
     }
 
-    ClickableText(text = annotatedString, style = TextStyle(letterSpacing = 2.sp, fontWeight = FontWeight.Medium), onClick = { offset ->
-        val annotations = annotatedString.getStringAnnotations(
-            tag = "meaning",
-            start = offset,
-            end = offset
-        )
-        if (annotations.isNotEmpty()) {
-            val word = annotatedString.text.substring(
-                annotations[0].start,
-                annotations[0].end
+    ClickableText(
+        text = annotatedString,
+        style = TextStyle(letterSpacing = 2.sp, fontWeight = FontWeight.Medium),
+        onClick = { offset ->
+            val annotations = annotatedString.getStringAnnotations(
+                tag = "meaning",
+                start = offset,
+                end = offset
             )
-            onClick(
-                Pair(
-                    word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ENGLISH) else it.toString() },
-                    annotations[0].item
+            if (annotations.isNotEmpty()) {
+                val word = annotatedString.text.substring(
+                    annotations[0].start,
+                    annotations[0].end
                 )
-            )
-        }
-    })
+                onClick(
+                    Pair(
+                        word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ENGLISH) else it.toString() },
+                        annotations[0].item
+                    )
+                )
+            }
+        })
 }
