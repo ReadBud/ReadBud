@@ -62,6 +62,7 @@ fun HomeScreen(
     val selectedItem = remember {
         mutableStateOf(Scans(0, "", ArrayList(), ""))
     }
+
     var isSelected by remember { mutableStateOf(false) }
 
     if (isSelected) {

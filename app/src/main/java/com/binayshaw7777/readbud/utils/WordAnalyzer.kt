@@ -1,45 +1,77 @@
 package com.binayshaw7777.readbud.utils
 
 import android.content.Context
+import android.content.res.AssetManager
+import com.binayshaw7777.readbud.model.DictionaryItem
 import com.binayshaw7777.readbud.model.WordsData
 import com.binayshaw7777.readbud.utils.Constants.COMMON_WORDS
 import com.binayshaw7777.readbud.utils.Constants.DICTIONARY
 import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.io.InputStream
-import java.io.InputStreamReader
 import java.nio.charset.Charset
 
-fun loadDictionaryFromJson(context: Context, fileName: String): HashMap<String, String> {
-    val gson = Gson()
 
-    try {
-        val inputStream = context.assets.open(fileName)
-        val reader = InputStreamReader(inputStream)
+fun parseJsonFile(assetManager: AssetManager): List<DictionaryItem>? {
+    val fileName = DICTIONARY
 
-        val type = object : TypeToken<HashMap<String, String>>() {}.type
-        val dictionary = gson.fromJson<HashMap<String, String>>(reader, type)
-        reader.close()
-        inputStream.close()
-        return dictionary
-    } catch (e: Exception) {
-        e.printStackTrace()
+    return try {
+        val inputStream: InputStream = assetManager.open(fileName)
+        val jsonString = inputStream.bufferedReader().use { it.readText() }
+
+        val gson = Gson()
+        val dictionaryItems: List<DictionaryItem> =
+            gson.fromJson(jsonString, Array<DictionaryItem>::class.java).toList()
+
+        dictionaryItems
+    } catch (exception: JsonSyntaxException) {
+        Logger.debug("An JsonSyntaxException occurred: $exception")
+        null
+    } catch (exception: IOException) {
+        Logger.debug("An IOException occurred: $exception")
+        null
+    } catch (exception: Exception) {
+        Logger.debug("An exception occurred: $exception")
+        null
     }
-    return HashMap()
 }
 
-suspend fun getWordMeaningFromString(
+fun returnMapFromDictionary(assetManager: AssetManager): HashMap<String, String> {
+    val listOfDictionaryItem: List<DictionaryItem>? = parseJsonFile(assetManager)
+    val map: HashMap<String, String> = hashMapOf()
+    listOfDictionaryItem?.let {
+        for (dictionaryItem in it) {
+            map[dictionaryItem.enWord.toString().lowercase()] =
+                dictionaryItem.enDefinition.toString()
+        }
+    }
+    return map
+}
+
+suspend fun getJargonWords(
     pages: List<String>,
+    context: Context
+): ArrayList<String> {
+    val listOfJargonWords: ArrayList<String> = arrayListOf()
+    withContext(Dispatchers.IO) {
+        val commonWordsList: List<String> = fetchWordListFromJSON(context, COMMON_WORDS)
+        listOfJargonWords.addAll(findJargonWords(pages, commonWordsList))
+    }
+    return listOfJargonWords
+}
+
+
+suspend fun getWordMeaningFromString(
+    jargonWords: List<String>,
     context: Context
 ): HashMap<String, String> {
     val jargonWordsCaught: HashMap<String, String> = HashMap()
     withContext(Dispatchers.IO) {
-        val commonWordsList: List<String> = fetchWordListFromJSON(context, COMMON_WORDS)
-        val dictionary: HashMap<String, String> = loadDictionaryFromJson(context, DICTIONARY)
-        val jargonWords: List<String> = findJargonWords(pages, commonWordsList)
+        val dictionary: HashMap<String, String> = returnMapFromDictionary(context.assets)
         Logger.debug("Jargon words from String: $jargonWords")
 
         for (word in jargonWords) {

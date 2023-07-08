@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.binayshaw7777.readbud.data.repository.ScansRepository
 import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.model.Scans
+import com.binayshaw7777.readbud.utils.getJargonWords
 import com.binayshaw7777.readbud.utils.getWordMeaningFromString
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +33,8 @@ class ScansViewModel(private val application: Application) : AndroidViewModel(ap
                 pages.add(extractedText)
             }
         }
-        val wordMeanings: HashMap<String, String> = getWordMeaningFromString(pages, application.applicationContext)
+        val jargonWords: List<String> = getJargonWords(pages, application.applicationContext)
+        val wordMeanings: HashMap<String, String> = getWordMeaningFromString(jargonWords, application.applicationContext)
         val hashMapJson = Gson().toJson(wordMeanings)
         val scans = Scans(id = 0, scanName = scanName, pages = pages, wordMeaningsJson = hashMapJson)
         scanRepository.addScansToRoom(scans)
