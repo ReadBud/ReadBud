@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -108,7 +106,7 @@ fun ImageListing(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Save file name as",
+                text = stringResource(R.string.save_file_name_as),
                 fontSize = 16.sp,
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.headlineSmall,
@@ -136,7 +134,7 @@ fun ImageListing(
                 Button(onClick = {
                     onClickSave = false
                 }) {
-                    Text(text = "Cancel")
+                    Text(text = stringResource(R.string.cancel))
                 }
                 Button(onClick = {
                     scansViewModel.saveIntoDB(
@@ -145,7 +143,7 @@ fun ImageListing(
                     )
                     onClickSave = false
                 }) {
-                    Text(text = "Save")
+                    Text(text = stringResource(R.string.save))
                 }
             }
         }
@@ -246,7 +244,7 @@ fun ImageListing(
                             }) {
                                 Icon(
                                     imageVector = Icons.Filled.Done,
-                                    contentDescription = "Save into Database"
+                                    contentDescription = stringResource(R.string.save_into_database)
                                 )
                             }
                         }
@@ -301,12 +299,6 @@ fun ImageListing(
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun Preview() {
-//    ImageListing(RecognizedTextItem(), ImageViewModel()) {}
-//}
 
 
 
