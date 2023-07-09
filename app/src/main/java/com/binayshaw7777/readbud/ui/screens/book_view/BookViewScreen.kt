@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -28,10 +30,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
@@ -43,6 +46,9 @@ import com.binayshaw7777.readbud.utils.jsonToHashMap
 import eu.wewox.pagecurl.ExperimentalPageCurlApi
 import eu.wewox.pagecurl.page.PageCurl
 import java.util.Locale
+import java.util.regex.Pattern
+
+private val WHITESPACE = Pattern.compile("\\s+")
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPageCurlApi::class)
 @Composable
@@ -50,11 +56,7 @@ fun BookViewScreen(scansViewModel: ScansViewModel) {
 
     val scannedDocument = scansViewModel.selectedScanDocument.value!!
     val listOfPages = scannedDocument.pages
-    val context = LocalContext.current
     val wordMeanings = jsonToHashMap(scannedDocument.wordMeaningsJson)
-    val currentIndex = remember {
-        mutableStateOf(0)
-    }
 
     Logger.debug("Map of jargon words: $wordMeanings")
 
@@ -77,8 +79,11 @@ fun BookViewScreen(scansViewModel: ScansViewModel) {
                 .padding(padding)
         ) {
             PageCurl(count = listOfPages.size) { index ->
-                currentIndex.value = index
-                PagePreview(index, listOfPages[index], wordMeanings)
+                val annotatedString = getAnnotatedString(
+                    WHITESPACE.split(listOfPages[index].trim()).toList(),
+                    wordMeanings
+                )
+                PagePreview(index, annotatedString)
             }
         }
     }
@@ -89,8 +94,7 @@ fun BookViewScreen(scansViewModel: ScansViewModel) {
 @Composable
 fun PagePreview(
     index: Int,
-    page: String,
-    mapOfJargonWords: HashMap<String, String>,
+    annotatedString: AnnotatedString,
     modifier: Modifier = Modifier
 ) {
 
@@ -121,11 +125,8 @@ fun PagePreview(
                 .padding(20.dp)
         ) {
 
-            val words = page.split(" ")
-
             DisplayParagraphWithMeanings(
-                words = words,
-                wordMeanings = mapOfJargonWords,
+                annotatedString,
                 onClick = { pair ->
                     selectedPair.value = pair
                     showBottomSheet.value = true
@@ -171,7 +172,11 @@ fun Definition(
             ) {
                 Text(
                     text = selectedPair.value.first,
-                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 30.sp, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    style = TextStyle(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 30.sp,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = selectedPair.value.second)
@@ -182,10 +187,38 @@ fun Definition(
 
 @Composable
 fun DisplayParagraphWithMeanings(
-    words: List<String>,
-    wordMeanings: Map<String, String>,
+    annotatedString: AnnotatedString,
     onClick: (Pair<String, String>) -> Unit
 ) {
+    val scroll = rememberScrollState(0)
+
+    ClickableText(
+        modifier = Modifier.verticalScroll(scroll),
+        text = annotatedString,
+        style = TextStyle(fontSize = 16.sp, letterSpacing = 2.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.Serif, lineHeight = 40.sp),
+        onClick = { offset ->
+            val annotations = annotatedString.getStringAnnotations(
+                tag = "meaning",
+                start = offset,
+                end = offset
+            )
+            if (annotations.isNotEmpty()) {
+                val word = annotatedString.text.substring(
+                    annotations[0].start,
+                    annotations[0].end
+                )
+                onClick(
+                    Pair(
+                        word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ENGLISH) else it.toString() },
+                        annotations[0].item
+                    )
+                )
+            }
+        })
+}
+
+fun getAnnotatedString(words: List<String>, wordMeanings: Map<String, String>): AnnotatedString {
+
     val annotatedString = buildAnnotatedString {
         for (word in words) {
             val meaning = wordMeanings[word.lowercase()]
@@ -207,28 +240,8 @@ fun DisplayParagraphWithMeanings(
                 pop()
             }
         }
+        toAnnotatedString()
     }
 
-    ClickableText(
-        text = annotatedString,
-        style = TextStyle(letterSpacing = 2.sp, fontWeight = FontWeight.Medium),
-        onClick = { offset ->
-            val annotations = annotatedString.getStringAnnotations(
-                tag = "meaning",
-                start = offset,
-                end = offset
-            )
-            if (annotations.isNotEmpty()) {
-                val word = annotatedString.text.substring(
-                    annotations[0].start,
-                    annotations[0].end
-                )
-                onClick(
-                    Pair(
-                        word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ENGLISH) else it.toString() },
-                        annotations[0].item
-                    )
-                )
-            }
-        })
+    return annotatedString
 }
