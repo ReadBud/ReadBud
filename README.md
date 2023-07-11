@@ -26,6 +26,8 @@ The purpose of this app is very simple and straightforward. To use this app you 
 - [CameraX](https://developer.android.com/jetpack/androidx/releases/camera) - To enable the feature of QR Code scanning.
 - [Coil](https://coil-kt.github.io/coil/compose/) - To set or place URL, and Bitmaps as Images on the screen.
   
+  ![248638478-555a0ce4-05f8-4e55-8b68-8c9231c07f70](https://github.com/binayshaw7777/ReadBud/assets/62587060/7ef0878f-5cee-400b-bfcc-87362917bb0e)
+
 <br>
 
 ## Architecture 👷‍♂️
