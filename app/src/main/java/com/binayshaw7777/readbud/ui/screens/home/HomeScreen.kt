@@ -3,6 +3,7 @@ package com.binayshaw7777.readbud.ui.screens.home
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Add
@@ -31,9 +33,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,14 +61,18 @@ fun HomeScreen(
 ) {
 
     val listOfAllScans by scansViewModel.listOfScans.observeAsState(listOf())
+    val filteredListOfAllScans = remember { mutableStateListOf<Scans>() }
+    var searchQuery by remember {
+        mutableStateOf("")
+    }
+    filteredListOfAllScans.addAll(listOfAllScans)
     val deleteAllScansDialogState = remember { mutableStateOf(false) }
-
     val selectedItem = remember {
         mutableStateOf(Scans(0, "", ArrayList(), ""))
     }
-
     var isSelected by remember { mutableStateOf(false) }
 
+    //If any item is selected from the Scan list
     if (isSelected) {
         Logger.debug("Selected item: $selectedItem")
         scansViewModel.selectedScanDocument.postValue(selectedItem.value)
@@ -78,6 +84,8 @@ fun HomeScreen(
         }
     }
 
+
+    //If the delete all button is clicked (Top right of App bar)
     if (deleteAllScansDialogState.value) {
         AlertDialog(
             onDismissRequest = {
@@ -126,7 +134,7 @@ fun HomeScreen(
                         )
                     },
                     actions = {
-                        if (listOfAllScans.isNotEmpty()) {
+                        if (filteredListOfAllScans.isNotEmpty()) {
                             IconButton(onClick = { deleteAllScansDialogState.value = true }) {
                                 Icon(
                                     imageVector = Icons.Filled.Delete,
@@ -162,40 +170,49 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top,
                 ) {
-
-                    var searchQuery by rememberSaveable { mutableStateOf("") }
-
                     SearchBar(
                         modifier = Modifier
                             .align(Alignment.Start)
                             .fillMaxWidth()
                             .padding(20.dp, 0.dp),
                         query = searchQuery,
-                        onQueryChange = { searchQuery = it },
+                        onQueryChange = {
+                            searchQuery = it
+                        },
                         onSearch = {},
                         active = false,
                         onActiveChange = {},
                         placeholder = { Text(stringResource(R.string.search_your_last_scan)) },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
-                    ) {
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                    if (listOfAllScans.isNotEmpty()) {
-                        Logger.debug("All items: $listOfAllScans")
-                        LazyColumn {
-                            items(listOfAllScans) { item ->
-                                SimpleCardDisplay(
-                                    onClick = {
-                                        selectedItem.value = item
-                                        isSelected = true
-                                    },
-                                    heading = item.scanName,
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                Icon(
+                                    modifier = Modifier.clickable { searchQuery = "" },
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = null
                                 )
                             }
                         }
+                    ) {
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    LazyColumn {
+                        items(filteredListOfAllScans.filter {
+                            it.scanName.contains(
+                                searchQuery,
+                                ignoreCase = true
+                            )
+                        }) { item ->
+                            SimpleCardDisplay(
+                                onClick = {
+                                    selectedItem.value = item
+                                    isSelected = true
+                                },
+                                heading = item.scanName,
+                            )
+                        }
                     }
                 }
-
             }
         }
     }
