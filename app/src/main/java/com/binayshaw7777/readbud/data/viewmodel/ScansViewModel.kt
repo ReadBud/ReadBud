@@ -11,12 +11,17 @@ import com.binayshaw7777.readbud.model.Scans
 import com.binayshaw7777.readbud.utils.getJargonWords
 import com.binayshaw7777.readbud.utils.getWordMeaningFromString
 import com.google.gson.Gson
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@HiltViewModel
+class ScansViewModel @Inject constructor(
+    private val application: Application,
+    private val scanRepository: ScansRepository
+) : AndroidViewModel(application) {
 
-class ScansViewModel(private val application: Application) : AndroidViewModel(application) {
-    private val scanRepository = ScansRepository(application)
     var listOfScans = scanRepository.getAllScansFromRoom().asLiveData()
     val onCompleteSaveIntoDB = MutableLiveData<Boolean>()
     val selectedScanDocument = MutableLiveData<Scans>()

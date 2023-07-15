@@ -14,7 +14,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.binayshaw7777.readbud.navigation.Navigation
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,16 +26,16 @@ class MainActivity : ComponentActivity() {
                 val systemUiController = rememberSystemUiController()
                 val useDarkIcons = !isSystemInDarkTheme()
 
-                val statusBarColor = MaterialTheme.colorScheme.background
+//                val statusBarColor = MaterialTheme.colorScheme.background
                 val navigationBarColor = MaterialTheme.colorScheme.primary
                 SideEffect {
                     systemUiController.setNavigationBarColor(
                         color = navigationBarColor, darkIcons = useDarkIcons
                     )
 
-                    systemUiController.setStatusBarColor(
-                        color = statusBarColor, darkIcons = useDarkIcons
-                    )
+//                    systemUiController.setStatusBarColor(
+//                        color = statusBarColor, darkIcons = useDarkIcons
+//                    )
                 }
                 // A surface container using the 'background' color from the theme
                 Surface {

@@ -5,10 +5,10 @@ import com.binayshaw7777.readbud.data.dao.ScansDAO
 import com.binayshaw7777.readbud.data.database.ScansDatabase
 import com.binayshaw7777.readbud.model.Scans
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
 
-class ScansRepository(application: Application) {
-
+class ScansRepository @Inject constructor(application: Application) {
     private var scansDAO: ScansDAO
 
     init {

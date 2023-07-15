@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -104,7 +105,6 @@ fun Navigation(application: Application) {
         }
     ) {
         val imageViewModel = ImageViewModel(application)
-        val scansViewModel = ScansViewModel(application)
 
         NavHost(
             navController,
@@ -114,19 +114,22 @@ fun Navigation(application: Application) {
                 .background(Color.White)
         ) {
             composable(HOME) {
+                val scansViewModel = hiltViewModel<ScansViewModel>()
                 HomeScreen(scansViewModel,
                     onFabClicked = { navController.navigate(Screens.ItemListing.name) },
                 navigateToBookView = {navController.navigate(Screens.BookView.name)})
             }
             composable(BOOK_VIEW) {
-                BookViewScreen(scansViewModel)
+                val scanViewModel = hiltViewModel<ScansViewModel>()
+                BookViewScreen(scanViewModel)
             }
             composable(SETTINGS) { SettingsScreens(navController) }
             composable(IMAGE_LISTING) { entry ->
+                val scanViewModel = hiltViewModel<ScansViewModel>()
                 var text = entry.savedStateHandle.get<RecognizedTextItem>(EXTRACTED_TEXT)
                 ImageListing(
                     text,
-                    imageViewModel, scansViewModel,
+                    imageViewModel, scanViewModel,
                     onFabClick = { navController.navigate(Screens.MLKitTextRecognition.name) },
                     onNavigateBack = {
                         text = RecognizedTextItem()
