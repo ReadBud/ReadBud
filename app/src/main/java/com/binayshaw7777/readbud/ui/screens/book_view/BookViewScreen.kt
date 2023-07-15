@@ -10,27 +10,32 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -38,11 +43,12 @@ import androidx.compose.ui.unit.sp
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.utils.Logger
 import com.binayshaw7777.readbud.utils.jsonToHashMap
-import eu.wewox.modalsheet.ExperimentalSheetApi
-import eu.wewox.modalsheet.ModalSheet
 import eu.wewox.pagecurl.ExperimentalPageCurlApi
 import eu.wewox.pagecurl.page.PageCurl
 import java.util.Locale
+import java.util.regex.Pattern
+
+private val WHITESPACE = Pattern.compile("\\s+")
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPageCurlApi::class)
 @Composable
@@ -50,11 +56,7 @@ fun BookViewScreen(scansViewModel: ScansViewModel) {
 
     val scannedDocument = scansViewModel.selectedScanDocument.value!!
     val listOfPages = scannedDocument.pages
-    val context = LocalContext.current
     val wordMeanings = jsonToHashMap(scannedDocument.wordMeaningsJson)
-    val currentIndex = remember {
-        mutableStateOf(0)
-    }
 
     Logger.debug("Map of jargon words: $wordMeanings")
 
@@ -77,20 +79,22 @@ fun BookViewScreen(scansViewModel: ScansViewModel) {
                 .padding(padding)
         ) {
             PageCurl(count = listOfPages.size) { index ->
-                currentIndex.value = index
-                PagePreview(index, listOfPages[index], wordMeanings)
+                val annotatedString = getAnnotatedString(
+                    WHITESPACE.split(listOfPages[index].trim()).toList(),
+                    wordMeanings
+                )
+                PagePreview(index, annotatedString)
             }
         }
     }
 
 }
 
-@OptIn(ExperimentalSheetApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PagePreview(
     index: Int,
-    page: String,
-    mapOfJargonWords: HashMap<String, String>,
+    annotatedString: AnnotatedString,
     modifier: Modifier = Modifier
 ) {
 
@@ -102,32 +106,12 @@ fun PagePreview(
             Pair("", "")
         )
     }
-    ModalSheet(
-        visible = showBottomSheet.value,
-        onVisibleChange = { showBottomSheet.value = it },
-        backgroundColor = MaterialTheme.colorScheme.surface
-    ) {
-        Column(
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Word meaning",
-                fontSize = 16.sp,
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = selectedPair.value.first)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = selectedPair.value.second)
-        }
-    }
+    val skipPartiallyExpanded by remember { mutableStateOf(false) }
+    val bottomSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = skipPartiallyExpanded
+    )
+
+    Definition(showBottomSheet, selectedPair, bottomSheetState)
 
     Box(
         modifier = modifier
@@ -141,11 +125,8 @@ fun PagePreview(
                 .padding(20.dp)
         ) {
 
-            val words = page.split(" ")
-
             DisplayParagraphWithMeanings(
-                words = words,
-                wordMeanings = mapOfJargonWords,
+                annotatedString,
                 onClick = { pair ->
                     selectedPair.value = pair
                     showBottomSheet.value = true
@@ -167,12 +148,77 @@ fun PagePreview(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Definition(
+    showBottomSheet: MutableState<Boolean>,
+    selectedPair: MutableState<Pair<String, String>>,
+    bottomSheetState: SheetState
+) {
+
+    // Sheet content
+    if (showBottomSheet.value) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet.value = false },
+            sheetState = bottomSheetState,
+        ) {
+            Column(
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(20.dp)
+            ) {
+                Text(
+                    text = selectedPair.value.first,
+                    style = TextStyle(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 30.sp,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = selectedPair.value.second)
+            }
+        }
+    }
+}
+
 @Composable
 fun DisplayParagraphWithMeanings(
-    words: List<String>,
-    wordMeanings: Map<String, String>,
+    annotatedString: AnnotatedString,
     onClick: (Pair<String, String>) -> Unit
 ) {
+    val scroll = rememberScrollState(0)
+
+    ClickableText(
+        modifier = Modifier.verticalScroll(scroll),
+        text = annotatedString,
+        style = TextStyle(fontSize = 16.sp, letterSpacing = 2.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.Serif, lineHeight = 40.sp),
+        onClick = { offset ->
+            val annotations = annotatedString.getStringAnnotations(
+                tag = "meaning",
+                start = offset,
+                end = offset
+            )
+            if (annotations.isNotEmpty()) {
+                val word = annotatedString.text.substring(
+                    annotations[0].start,
+                    annotations[0].end
+                )
+                onClick(
+                    Pair(
+                        word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ENGLISH) else it.toString() },
+                        annotations[0].item
+                    )
+                )
+            }
+        })
+}
+
+fun getAnnotatedString(words: List<String>, wordMeanings: Map<String, String>): AnnotatedString {
+
     val annotatedString = buildAnnotatedString {
         for (word in words) {
             val meaning = wordMeanings[word.lowercase()]
@@ -181,7 +227,12 @@ fun DisplayParagraphWithMeanings(
                 append("$word ")
             } else {
                 pushStringAnnotation(tag = "meaning", annotation = meaning)
-                withStyle(style = SpanStyle(background = Color.Yellow, fontWeight = FontWeight.SemiBold)) {
+                withStyle(
+                    style = SpanStyle(
+                        background = Color.Yellow,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                ) {
                     Logger.debug("Appending with style: $word")
                     append(word)
                 }
@@ -189,25 +240,8 @@ fun DisplayParagraphWithMeanings(
                 pop()
             }
         }
+        toAnnotatedString()
     }
 
-    ClickableText(text = annotatedString, style = TextStyle(letterSpacing = 2.sp, fontWeight = FontWeight.Medium), onClick = { offset ->
-        val annotations = annotatedString.getStringAnnotations(
-            tag = "meaning",
-            start = offset,
-            end = offset
-        )
-        if (annotations.isNotEmpty()) {
-            val word = annotatedString.text.substring(
-                annotations[0].start,
-                annotations[0].end
-            )
-            onClick(
-                Pair(
-                    word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ENGLISH) else it.toString() },
-                    annotations[0].item
-                )
-            )
-        }
-    })
+    return annotatedString
 }
