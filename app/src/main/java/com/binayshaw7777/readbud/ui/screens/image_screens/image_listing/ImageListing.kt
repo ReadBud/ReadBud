@@ -1,6 +1,7 @@
 package com.binayshaw7777.readbud.ui.screens.image_screens.image_listing
 
 import android.Manifest
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,10 +45,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.components.DocumentCard
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.RecognizedTextItem
+import com.binayshaw7777.readbud.navigation.Screens
 import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
 import com.binayshaw7777.readbud.utils.Logger
@@ -59,11 +62,9 @@ import com.google.accompanist.permissions.rememberPermissionState
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ImageListing(
-    recognizedTextItem: RecognizedTextItem?,
     imageViewModel: ImageViewModel,
     scansViewModel: ScansViewModel,
-    onFabClick: () -> Unit,
-    onNavigateBack: () -> Unit
+    navController: NavController
 ) {
 
     val cameraPermissionState: PermissionState = rememberPermissionState(Manifest.permission.CAMERA)
@@ -73,7 +74,8 @@ fun ImageListing(
 
     if (onCompleteSaveIntoDB.value == true) {
         scansViewModel.onCompleteSaveIntoDB.postValue(false)
-        onNavigateBack()
+        imageViewModel.clearAllRecognizedTextItems()
+        navController.popBackStack()
     }
 
     val itemNotAdded = remember {
@@ -81,13 +83,6 @@ fun ImageListing(
     }
     var onSaveOptionClicked by remember {
         mutableStateOf(false)
-    }
-
-    recognizedTextItem?.let {
-        if (itemNotAdded.value && it.extractedText?.isNotEmpty() == true) {
-            imageViewModel.addRecognizedTextItems(it)
-            itemNotAdded.value = false
-        }
     }
 
     var onScannedCardClick by remember { mutableStateOf(false) }
@@ -211,8 +206,6 @@ fun ImageListing(
                 }
             }
         }
-
-
     }
 
     ReadBudTheme(dynamicColor = true) {
@@ -249,7 +242,7 @@ fun ImageListing(
                         .padding(20.dp),
                     onClick = {
                         if (cameraPermissionState.hasPermission) {
-                            onFabClick()
+                            navController.navigate(Screens.MLKitTextRecognition.name)
                         } else {
                             cameraPermissionState.launchPermissionRequest()
                         }
@@ -267,10 +260,13 @@ fun ImageListing(
                     .fillMaxSize()
                     .padding(padding)
             ) {
+                BackHandler(true) {
+                    imageViewModel.clearAllRecognizedTextItems()
+                    navController.popBackStack()
+                }
                 Column(modifier = Modifier.padding(16.dp)) {
                     listOfRecognizedTextItem.value?.let {
                         LazyColumn {
-
                             itemsIndexed(it) { index, item ->
                                 item.thumbnail?.let { it1 ->
                                     DocumentCard(

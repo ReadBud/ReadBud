@@ -43,10 +43,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.components.SimpleCardDisplay
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.Scans
+import com.binayshaw7777.readbud.navigation.Screens
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
 import com.binayshaw7777.readbud.utils.Logger
 
@@ -56,8 +58,7 @@ import com.binayshaw7777.readbud.utils.Logger
 @Composable
 fun HomeScreen(
     scansViewModel: ScansViewModel,
-    onFabClicked: () -> Unit,
-    navigateToBookView: () -> Unit
+    navController: NavController
 ) {
 
     val listOfAllScans by scansViewModel.listOfScans.observeAsState(listOf())
@@ -78,7 +79,7 @@ fun HomeScreen(
         scansViewModel.selectedScanDocument.postValue(selectedItem.value)
         isSelected = false
         try {
-            navigateToBookView()
+            navController.navigate(Screens.BookView.name)
         } catch (e: Exception) {
             Toast.makeText(LocalContext.current, e.toString(), Toast.LENGTH_SHORT).show()
         }
@@ -149,7 +150,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .padding(20.dp),
                     onClick = {
-                        onFabClicked()
+                        navController.navigate(Screens.ItemListing.name)
                     },
                     shape = RoundedCornerShape(16.dp),
                 ) {

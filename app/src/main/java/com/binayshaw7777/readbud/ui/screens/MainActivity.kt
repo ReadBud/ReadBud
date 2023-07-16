@@ -11,7 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.binayshaw7777.readbud.navigation.Navigation
+import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,24 +24,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ReadBudTheme {
-
-                val systemUiController = rememberSystemUiController()
-                val useDarkIcons = !isSystemInDarkTheme()
-
-//                val statusBarColor = MaterialTheme.colorScheme.background
-                val navigationBarColor = MaterialTheme.colorScheme.primary
-                SideEffect {
-                    systemUiController.setNavigationBarColor(
-                        color = navigationBarColor, darkIcons = useDarkIcons
-                    )
-
-//                    systemUiController.setStatusBarColor(
-//                        color = statusBarColor, darkIcons = useDarkIcons
-//                    )
-                }
-                // A surface container using the 'background' color from the theme
                 Surface {
-                    Navigation(application)
+                    val imageViewModel = hiltViewModel<ImageViewModel>()
+                    Navigation(application, imageViewModel)
                 }
             }
         }

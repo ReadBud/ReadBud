@@ -38,7 +38,7 @@ import com.binayshaw7777.readbud.utils.Constants.SETTINGS
 
 
 @Composable
-fun Navigation(application: Application) {
+fun Navigation(application: Application, imageViewModel: ImageViewModel) {
     val bottomNavItems = listOf(
         BottomNavItem(
             name = "Home",
@@ -104,7 +104,6 @@ fun Navigation(application: Application) {
             }
         }
     ) {
-        val imageViewModel = ImageViewModel(application)
 
         NavHost(
             navController,
@@ -115,29 +114,19 @@ fun Navigation(application: Application) {
         ) {
             composable(HOME) {
                 val scansViewModel = hiltViewModel<ScansViewModel>()
-                HomeScreen(scansViewModel,
-                    onFabClicked = { navController.navigate(Screens.ItemListing.name) },
-                navigateToBookView = {navController.navigate(Screens.BookView.name)})
+                HomeScreen(scansViewModel, navController)
             }
             composable(BOOK_VIEW) {
                 val scanViewModel = hiltViewModel<ScansViewModel>()
                 BookViewScreen(scanViewModel)
             }
             composable(SETTINGS) { SettingsScreens(navController) }
-            composable(IMAGE_LISTING) { entry ->
+            composable(IMAGE_LISTING) {
                 val scanViewModel = hiltViewModel<ScansViewModel>()
-                var text = entry.savedStateHandle.get<RecognizedTextItem>(EXTRACTED_TEXT)
-                ImageListing(
-                    text,
-                    imageViewModel, scanViewModel,
-                    onFabClick = { navController.navigate(Screens.MLKitTextRecognition.name) },
-                    onNavigateBack = {
-                        text = RecognizedTextItem()
-                        navController.navigateUp()
-                    })
+                ImageListing(imageViewModel, scanViewModel, navController)
             }
             composable(ML_KIT_RECOGNITION) {
-                MLKitTextRecognition(navController)
+                MLKitTextRecognition(navController, imageViewModel)
             }
         }
     }
