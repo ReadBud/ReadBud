@@ -14,8 +14,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -23,13 +28,16 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -40,7 +48,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
+import com.binayshaw7777.readbud.utils.Constants.MEANING
 import com.binayshaw7777.readbud.utils.Logger
 import com.binayshaw7777.readbud.utils.jsonToHashMap
 import eu.wewox.pagecurl.ExperimentalPageCurlApi
@@ -52,38 +63,67 @@ private val WHITESPACE = Pattern.compile("\\s+")
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPageCurlApi::class)
 @Composable
-fun BookViewScreen(scansViewModel: ScansViewModel) {
+fun BookViewScreen(
+    scanId: Int,
+    scansViewModel: ScansViewModel,
+    navController: NavController
+) {
 
-    val scannedDocument = scansViewModel.selectedScanDocument.value!!
-    val listOfPages = scannedDocument.pages
-    val wordMeanings = jsonToHashMap(scannedDocument.wordMeaningsJson)
+    var listOfPages: List<String> = listOf()
+    var wordMeanings: HashMap<String, String> = hashMapOf()
 
-    Logger.debug("Map of jargon words: $wordMeanings")
+    val scanItemResult by scansViewModel.scanItemLiveData.observeAsState()
+
+    scanItemResult?.let {
+        if (it.pages.isNotEmpty()) {
+            listOfPages = it.pages
+            wordMeanings = jsonToHashMap(it.wordMeaningsJson)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        scansViewModel.getScanById(scanId)
+    }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        scannedDocument.scanName,
+                        scanItemResult?.scanName.toString(),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.go_back)
+                        )
+                    }
+                }
             )
         }
     ) { padding ->
         Box(
             Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(padding),
+            contentAlignment = Alignment.Center
         ) {
-            PageCurl(count = listOfPages.size) { index ->
-                val annotatedString = getAnnotatedString(
-                    WHITESPACE.split(listOfPages[index].trim()).toList(),
-                    wordMeanings
-                )
-                PagePreview(index, annotatedString)
+            if (listOfPages.isNotEmpty()) {
+                PageCurl(count = listOfPages.size) { index ->
+                    val annotatedString = getAnnotatedString(
+                        WHITESPACE.split(listOfPages[index].trim()).toList(),
+                        wordMeanings
+                    )
+                    PagePreview(index, annotatedString)
+                }
+            } else {
+                CircularProgressIndicator()
             }
         }
     }
@@ -116,7 +156,7 @@ fun PagePreview(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(Color.White)
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
@@ -130,7 +170,6 @@ fun PagePreview(
                 onClick = { pair ->
                     selectedPair.value = pair
                     showBottomSheet.value = true
-                    Logger.debug("Pair : $pair")
                 }
             )
         }
@@ -195,10 +234,16 @@ fun DisplayParagraphWithMeanings(
     ClickableText(
         modifier = Modifier.verticalScroll(scroll),
         text = annotatedString,
-        style = TextStyle(fontSize = 16.sp, letterSpacing = 2.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.Serif, lineHeight = 40.sp),
+        style = TextStyle(
+            fontSize = 16.sp,
+            letterSpacing = 2.sp,
+            fontWeight = FontWeight.Medium,
+            fontFamily = FontFamily.Serif,
+            lineHeight = 40.sp,
+        ),
         onClick = { offset ->
             val annotations = annotatedString.getStringAnnotations(
-                tag = "meaning",
+                tag = MEANING,
                 start = offset,
                 end = offset
             )
@@ -222,11 +267,13 @@ fun getAnnotatedString(words: List<String>, wordMeanings: Map<String, String>): 
     val annotatedString = buildAnnotatedString {
         for (word in words) {
             val meaning = wordMeanings[word.lowercase()]
+
             Logger.debug("Word and meaning: $word - $meaning")
+
             if (meaning.isNullOrEmpty()) {
                 append("$word ")
             } else {
-                pushStringAnnotation(tag = "meaning", annotation = meaning)
+                pushStringAnnotation(tag = MEANING, annotation = meaning)
                 withStyle(
                     style = SpanStyle(
                         background = Color.Yellow,

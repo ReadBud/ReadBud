@@ -24,15 +24,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.components.ThemeSwitch
 import com.binayshaw7777.readbud.model.SettingsItems
@@ -84,7 +81,7 @@ fun SettingsScreens(navController: NavHostController) {
                         )
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color.Transparent,
+                        containerColor = MaterialTheme.colorScheme.background,
                     )
                 )
             },
@@ -142,11 +139,4 @@ fun SettingsScreens(navController: NavHostController) {
             }
         )
     }
-
-}
-
-@Preview(showBackground = true)
-@Composable
-fun Preview() {
-    SettingsScreens(rememberNavController())
 }

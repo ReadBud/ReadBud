@@ -2,7 +2,6 @@ package com.binayshaw7777.readbud.ui.screens.home
 
 
 import android.annotation.SuppressLint
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,11 +24,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -38,7 +39,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -46,10 +46,8 @@ import androidx.navigation.NavController
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.components.SimpleCardDisplay
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
-import com.binayshaw7777.readbud.model.Scans
 import com.binayshaw7777.readbud.navigation.Screens
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
-import com.binayshaw7777.readbud.utils.Logger
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,7 +55,8 @@ import com.binayshaw7777.readbud.utils.Logger
 @Composable
 fun HomeScreen(
     scansViewModel: ScansViewModel,
-    navController: NavController
+    navController: NavController,
+    onItemClicked: (scanId: Int) -> Unit
 ) {
 
     val listOfAllScans by scansViewModel.listOfScans.observeAsState(listOf())
@@ -66,24 +65,6 @@ fun HomeScreen(
         mutableStateOf("")
     }
     val showDeleteAllDialog = remember { mutableStateOf(false) }
-
-    val selectedItem = remember {
-        mutableStateOf(Scans(0, "", ArrayList(), ""))
-    }
-    var isAnyItemSelected by remember { mutableStateOf(false) }
-
-    //If any item is selected from the Scan list
-    if (isAnyItemSelected) {
-        Logger.debug("Selected item: $selectedItem")
-        scansViewModel.selectedScanDocument.postValue(selectedItem.value)
-        isAnyItemSelected = false
-        try {
-            navController.navigate(Screens.BookView.name)
-        } catch (e: Exception) {
-            Toast.makeText(LocalContext.current, e.toString(), Toast.LENGTH_SHORT).show()
-        }
-    }
-
 
     //If the delete all button is clicked (Top right of App bar)
     if (showDeleteAllDialog.value) {
@@ -142,7 +123,10 @@ fun HomeScreen(
                                 )
                             }
                         }
-                    }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                    )
                 )
             }, floatingActionButton = {
                 FloatingActionButton(
@@ -205,8 +189,7 @@ fun HomeScreen(
                         }) { item ->
                             SimpleCardDisplay(
                                 onClick = {
-                                    selectedItem.value = item
-                                    isAnyItemSelected = true
+                                    onItemClicked(item.id)
                                 },
                                 heading = item.scanName,
                             )
