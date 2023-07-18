@@ -103,97 +103,96 @@ fun HomeScreen(
         )
     }
 
-    ReadBudTheme(dynamicColor = true) {
-        Scaffold(Modifier.fillMaxSize(),
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            stringResource(id = R.string.home),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    actions = {
-                        if (listOfAllScans.isNotEmpty()) {
-                            IconButton(onClick = { showDeleteAllDialog.value = true }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Delete,
-                                    contentDescription = stringResource(R.string.delete_action)
-                                )
-                            }
-                        }
-                    },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
+
+    Scaffold(Modifier.fillMaxSize(),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        stringResource(id = R.string.home),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-                )
-            }, floatingActionButton = {
-                FloatingActionButton(
-                    modifier = Modifier
-                        .padding(20.dp),
-                    onClick = {
-                        navController.navigate(Screens.ItemListing.name)
-                    },
-                    shape = RoundedCornerShape(16.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Add,
-                        contentDescription = stringResource(R.string.add_fab),
-                    )
-                }
-            }) { padding ->
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top,
-                ) {
-                    SearchBar(
-                        modifier = Modifier
-                            .align(Alignment.Start)
-                            .fillMaxWidth()
-                            .padding(20.dp, 0.dp),
-                        query = searchBarFilterQuery,
-                        onQueryChange = {
-                            searchBarFilterQuery = it
-                        },
-                        onSearch = {},
-                        active = false,
-                        onActiveChange = {},
-                        placeholder = { Text(stringResource(R.string.search_your_last_scan)) },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                        trailingIcon = {
-                            if (searchBarFilterQuery.isNotEmpty()) {
-                                Icon(
-                                    modifier = Modifier.clickable { searchBarFilterQuery = "" },
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = null
-                                )
-                            }
+                },
+                actions = {
+                    if (listOfAllScans.isNotEmpty()) {
+                        IconButton(onClick = { showDeleteAllDialog.value = true }) {
+                            Icon(
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = stringResource(R.string.delete_action)
+                            )
                         }
-                    ) {
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
-                    LazyColumn {
-                        items(listOfAllScans.filter {
-                            it.scanName.contains(
-                                searchBarFilterQuery,
-                                ignoreCase = true
-                            )
-                        }) { item ->
-                            SimpleCardDisplay(
-                                onClick = {
-                                    onItemClicked(item.id)
-                                },
-                                heading = item.scanName,
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                )
+            )
+        }, floatingActionButton = {
+            FloatingActionButton(
+                modifier = Modifier
+                    .padding(20.dp),
+                onClick = {
+                    navController.navigate(Screens.ItemListing.name)
+                },
+                shape = RoundedCornerShape(16.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = stringResource(R.string.add_fab),
+                )
+            }
+        }) { padding ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top,
+            ) {
+                SearchBar(
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .fillMaxWidth()
+                        .padding(20.dp, 0.dp),
+                    query = searchBarFilterQuery,
+                    onQueryChange = {
+                        searchBarFilterQuery = it
+                    },
+                    onSearch = {},
+                    active = false,
+                    onActiveChange = {},
+                    placeholder = { Text(stringResource(R.string.search_your_last_scan)) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    trailingIcon = {
+                        if (searchBarFilterQuery.isNotEmpty()) {
+                            Icon(
+                                modifier = Modifier.clickable { searchBarFilterQuery = "" },
+                                imageVector = Icons.Default.Close,
+                                contentDescription = null
                             )
                         }
+                    }
+                ) {
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                LazyColumn {
+                    items(listOfAllScans.filter {
+                        it.scanName.contains(
+                            searchBarFilterQuery,
+                            ignoreCase = true
+                        )
+                    }) { item ->
+                        SimpleCardDisplay(
+                            onClick = {
+                                onItemClicked(item.id)
+                            },
+                            heading = item.scanName,
+                        )
                     }
                 }
             }

@@ -208,89 +208,87 @@ fun ImageListing(
         }
     }
 
-    ReadBudTheme(dynamicColor = true) {
-        BackHandler(true) {
-            imageViewModel.clearAllRecognizedTextItems()
-            navController.popBackStack()
-        }
-        Scaffold(
-            Modifier.fillMaxSize(),
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            stringResource(id = R.string.select_images),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    actions = {
-                        if (listOfRecognizedTextItem.value.isNullOrEmpty().not()) {
-                            IconButton(onClick = {
-                                onClickSave = true
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Done,
-                                    contentDescription = stringResource(R.string.save_into_database)
-                                )
-                            }
-                        }
-                    },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
+    BackHandler(true) {
+        imageViewModel.clearAllRecognizedTextItems()
+        navController.popBackStack()
+    }
+    Scaffold(
+        Modifier.fillMaxSize(),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        stringResource(id = R.string.select_images),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-                )
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    modifier = Modifier
-                        .padding(20.dp),
-                    onClick = {
-                        if (cameraPermissionState.hasPermission) {
-                            navController.navigate(Screens.MLKitTextRecognition.name)
-                        } else {
-                            cameraPermissionState.launchPermissionRequest()
+                },
+                actions = {
+                    if (listOfRecognizedTextItem.value.isNullOrEmpty().not()) {
+                        IconButton(onClick = {
+                            onClickSave = true
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Done,
+                                contentDescription = stringResource(R.string.save_into_database)
+                            )
                         }
-                    },
-                    shape = RoundedCornerShape(16.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.camera_icon),
-                        contentDescription = stringResource(R.string.add_fab),
-                    )
-                }
-            }) { padding ->
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-
-                    if (onStartProgress) {
-                        CircularProgressIndicator()
                     }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
+                )
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                modifier = Modifier
+                    .padding(20.dp),
+                onClick = {
+                    if (cameraPermissionState.hasPermission) {
+                        navController.navigate(Screens.MLKitTextRecognition.name)
+                    } else {
+                        cameraPermissionState.launchPermissionRequest()
+                    }
+                },
+                shape = RoundedCornerShape(16.dp),
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.camera_icon),
+                    contentDescription = stringResource(R.string.add_fab),
+                )
+            }
+        }) { padding ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
 
-                    Column(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .align(Alignment.TopCenter)
-                    ) {
-                        listOfRecognizedTextItem.value?.let {
-                            LazyColumn {
-                                itemsIndexed(it) { index, item ->
-                                    item.thumbnail?.let { it1 ->
-                                        DocumentCard(
-                                            onClick = {
-                                                selectedItem.value = item
-                                                onItemClickListener = true
-                                            },
-                                            thumbnail = it1,
-                                            heading = "Scan no. $index",
-                                            description = ""
-                                        )
-                                    }
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+
+                if (onStartProgress) {
+                    CircularProgressIndicator()
+                }
+
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.TopCenter)
+                ) {
+                    listOfRecognizedTextItem.value?.let {
+                        LazyColumn {
+                            itemsIndexed(it) { index, item ->
+                                item.thumbnail?.let { it1 ->
+                                    DocumentCard(
+                                        onClick = {
+                                            selectedItem.value = item
+                                            onItemClickListener = true
+                                        },
+                                        thumbnail = it1,
+                                        heading = "Scan no. $index",
+                                        description = ""
+                                    )
                                 }
                             }
                         }
@@ -300,6 +298,3 @@ fun ImageListing(
         }
     }
 }
-
-
-
