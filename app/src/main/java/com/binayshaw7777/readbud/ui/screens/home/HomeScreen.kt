@@ -33,7 +33,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -62,22 +61,22 @@ fun HomeScreen(
 ) {
 
     val listOfAllScans by scansViewModel.listOfScans.observeAsState(listOf())
-    val filteredListOfAllScans = remember { mutableStateListOf<Scans>() }
-    var searchQuery by remember {
+
+    var searchBarFilterQuery by remember {
         mutableStateOf("")
     }
-    filteredListOfAllScans.addAll(listOfAllScans)
-    val deleteAllScansDialogState = remember { mutableStateOf(false) }
+    val showDeleteAllDialog = remember { mutableStateOf(false) }
+
     val selectedItem = remember {
         mutableStateOf(Scans(0, "", ArrayList(), ""))
     }
-    var isSelected by remember { mutableStateOf(false) }
+    var isAnyItemSelected by remember { mutableStateOf(false) }
 
     //If any item is selected from the Scan list
-    if (isSelected) {
+    if (isAnyItemSelected) {
         Logger.debug("Selected item: $selectedItem")
         scansViewModel.selectedScanDocument.postValue(selectedItem.value)
-        isSelected = false
+        isAnyItemSelected = false
         try {
             navController.navigate(Screens.BookView.name)
         } catch (e: Exception) {
@@ -87,10 +86,10 @@ fun HomeScreen(
 
 
     //If the delete all button is clicked (Top right of App bar)
-    if (deleteAllScansDialogState.value) {
+    if (showDeleteAllDialog.value) {
         AlertDialog(
             onDismissRequest = {
-                deleteAllScansDialogState.value = false
+                showDeleteAllDialog.value = false
             },
             icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
             title = {
@@ -105,7 +104,7 @@ fun HomeScreen(
                 TextButton(
                     onClick = {
                         scansViewModel.deleteAllScans()
-                        deleteAllScansDialogState.value = false
+                        showDeleteAllDialog.value = false
                     }
                 ) {
                     Text(stringResource(R.string.delete))
@@ -114,7 +113,7 @@ fun HomeScreen(
             dismissButton = {
                 TextButton(
                     onClick = {
-                        deleteAllScansDialogState.value = false
+                        showDeleteAllDialog.value = false
                     }
                 ) {
                     Text(stringResource(R.string.don_t_delete))
@@ -135,8 +134,8 @@ fun HomeScreen(
                         )
                     },
                     actions = {
-                        if (filteredListOfAllScans.isNotEmpty()) {
-                            IconButton(onClick = { deleteAllScansDialogState.value = true }) {
+                        if (listOfAllScans.isNotEmpty()) {
+                            IconButton(onClick = { showDeleteAllDialog.value = true }) {
                                 Icon(
                                     imageVector = Icons.Filled.Delete,
                                     contentDescription = stringResource(R.string.delete_action)
@@ -176,9 +175,9 @@ fun HomeScreen(
                             .align(Alignment.Start)
                             .fillMaxWidth()
                             .padding(20.dp, 0.dp),
-                        query = searchQuery,
+                        query = searchBarFilterQuery,
                         onQueryChange = {
-                            searchQuery = it
+                            searchBarFilterQuery = it
                         },
                         onSearch = {},
                         active = false,
@@ -186,9 +185,9 @@ fun HomeScreen(
                         placeholder = { Text(stringResource(R.string.search_your_last_scan)) },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                         trailingIcon = {
-                            if (searchQuery.isNotEmpty()) {
+                            if (searchBarFilterQuery.isNotEmpty()) {
                                 Icon(
-                                    modifier = Modifier.clickable { searchQuery = "" },
+                                    modifier = Modifier.clickable { searchBarFilterQuery = "" },
                                     imageVector = Icons.Default.Close,
                                     contentDescription = null
                                 )
@@ -198,16 +197,16 @@ fun HomeScreen(
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     LazyColumn {
-                        items(filteredListOfAllScans.filter {
+                        items(listOfAllScans.filter {
                             it.scanName.contains(
-                                searchQuery,
+                                searchBarFilterQuery,
                                 ignoreCase = true
                             )
                         }) { item ->
                             SimpleCardDisplay(
                                 onClick = {
                                     selectedItem.value = item
-                                    isSelected = true
+                                    isAnyItemSelected = true
                                 },
                                 heading = item.scanName,
                             )
