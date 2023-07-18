@@ -18,4 +18,6 @@
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="save_file_name_as">Save file name as</string>
+    <string name="edit_recognized_text">Edit Recognized Text</string>
+    <string name="go_back">Go Back</string>
 </resources>

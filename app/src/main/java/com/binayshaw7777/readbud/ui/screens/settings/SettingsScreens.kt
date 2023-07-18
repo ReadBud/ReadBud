@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,11 +27,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.binayshaw7777.readbud.R
+import com.binayshaw7777.readbud.components.ThemeSwitch
 import com.binayshaw7777.readbud.model.SettingsItems
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
 
@@ -79,6 +80,9 @@ fun SettingsScreens(navController: NavHostController) {
                             overflow = TextOverflow.Ellipsis
                         )
                     },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                    )
                 )
             },
             content = { innerPadding ->
@@ -109,17 +113,24 @@ fun SettingsScreens(navController: NavHostController) {
                                         .height(40.dp)
                                         .clickable {
                                             onClickItem.value = it
-                                        }, horizontalArrangement = Arrangement.Start,
+                                        }, horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(
-                                        painter = painterResource(id = settingsItem[it].first),
-                                        contentDescription = settingsItem[it].second,
-                                    )
-                                    Spacer(modifier = Modifier.width(16.dp))
-                                    Text(
-                                        settingsItem[it].second,
-                                    )
+                                    Row {
+                                        Icon(
+                                            painter = painterResource(id = settingsItem[it].first),
+                                            contentDescription = settingsItem[it].second,
+                                        )
+                                        Spacer(modifier = Modifier.width(16.dp))
+                                        Text(
+                                            settingsItem[it].second,
+                                        )
+                                    }
+                                    Row {
+                                        if (it == 0) {
+                                            ThemeSwitch(themeViewModel = hiltViewModel())
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -128,11 +139,4 @@ fun SettingsScreens(navController: NavHostController) {
             }
         )
     }
-
-}
-
-@Preview(showBackground = true)
-@Composable
-fun Preview() {
-    SettingsScreens(rememberNavController())
 }

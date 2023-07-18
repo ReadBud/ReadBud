@@ -1,7 +1,9 @@
 package com.binayshaw7777.readbud.ui.screens.image_screens.image_listing
 
 import android.Manifest
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -28,6 +31,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -44,10 +48,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.components.DocumentCard
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.RecognizedTextItem
+import com.binayshaw7777.readbud.navigation.Screens
 import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
 import com.binayshaw7777.readbud.utils.Logger
@@ -59,49 +65,37 @@ import com.google.accompanist.permissions.rememberPermissionState
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ImageListing(
-    recognizedTextItem: RecognizedTextItem?,
     imageViewModel: ImageViewModel,
     scansViewModel: ScansViewModel,
-    onFabClick: () -> Unit,
-    onNavigateBack: () -> Unit
+    navController: NavController
 ) {
 
     val cameraPermissionState: PermissionState = rememberPermissionState(Manifest.permission.CAMERA)
-
     val listOfRecognizedTextItem = imageViewModel.recognizedTextItemList.observeAsState()
-    val onCompleteSaveIntoDB = scansViewModel.onCompleteSaveIntoDB.observeAsState()
+    val onSaveObserverState = scansViewModel.onCompleteSaveIntoDB.observeAsState()
 
-    if (onCompleteSaveIntoDB.value == true) {
+    var onStartProgress by remember { mutableStateOf(false) }
+
+    if (onSaveObserverState.value == true) {
         scansViewModel.onCompleteSaveIntoDB.postValue(false)
-        onNavigateBack()
+        onStartProgress = false
+        navController.navigateUp()
     }
-
-    val itemNotAdded = remember {
-        mutableStateOf(true)
-    }
-    var onSaveOptionClicked by remember {
+    var onClickSave by remember {
         mutableStateOf(false)
     }
+    var onItemClickListener by remember { mutableStateOf(false) }
 
-    recognizedTextItem?.let {
-        if (itemNotAdded.value && it.extractedText?.isNotEmpty() == true) {
-            imageViewModel.addRecognizedTextItems(it)
-            itemNotAdded.value = false
-        }
-    }
-
-    var onScannedCardClick by remember { mutableStateOf(false) }
     val selectedItem = remember {
         mutableStateOf(RecognizedTextItem())
     }
 
-    if (onSaveOptionClicked) {
+    if (onClickSave) {
         ModalBottomSheet(
-            onDismissRequest = { onSaveOptionClicked = false }
+            onDismissRequest = { onClickSave = false }
         ) {
-            var scanName by remember {
-                mutableStateOf("")
-            }
+
+            var saveAsFileName by remember { mutableStateOf("") }
 
             Column(
                 horizontalAlignment = Alignment.Start,
@@ -121,8 +115,8 @@ fun ImageListing(
                 TextField(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    value = scanName,
-                    onValueChange = { scanName = it },
+                    value = saveAsFileName,
+                    onValueChange = { saveAsFileName = it },
                     colors = TextFieldDefaults.textFieldColors(
                         focusedIndicatorColor = Color.Transparent,
                         disabledIndicatorColor = Color.Transparent,
@@ -137,16 +131,16 @@ fun ImageListing(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Button(onClick = {
-                        onSaveOptionClicked = false
+                        onClickSave = false
                     }) {
                         Text(text = stringResource(R.string.cancel))
                     }
                     Button(onClick = {
                         scansViewModel.saveIntoDB(
-                            scanName,
+                            saveAsFileName,
                             imageViewModel.clearAllRecognizedTextItems()
                         )
-                        onSaveOptionClicked = false
+                        onClickSave = false
                     }) {
                         Text(text = stringResource(R.string.save))
                     }
@@ -155,12 +149,12 @@ fun ImageListing(
         }
     }
 
-    if (onScannedCardClick) {
+    if (onItemClickListener) {
         Logger.debug("Selected item is: ${selectedItem.value}")
         selectedItem.value.extractedText?.let { value ->
 
             ModalBottomSheet(
-                onDismissRequest = { onScannedCardClick = false }
+                onDismissRequest = { onItemClickListener = false }
             ) {
                 var updatedString by remember {
                     mutableStateOf(value)
@@ -181,7 +175,7 @@ fun ImageListing(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Edit Recognized Text",
+                            text = stringResource(R.string.edit_recognized_text),
                             fontSize = 16.sp,
                             textAlign = TextAlign.Start,
                             style = MaterialTheme.typography.headlineSmall,
@@ -190,9 +184,10 @@ fun ImageListing(
                         Button(onClick = {
                             selectedItem.value.extractedText = updatedString
                             imageViewModel.updateRecognizedItem(selectedItem.value)
-                            onScannedCardClick = false
+                            onStartProgress = true
+                            onItemClickListener = false
                         }) {
-                            Text(text = "Save")
+                            Text(text = stringResource(id = R.string.save))
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
@@ -211,12 +206,13 @@ fun ImageListing(
                 }
             }
         }
-
-
     }
 
     ReadBudTheme(dynamicColor = true) {
-
+        BackHandler(true) {
+            imageViewModel.clearAllRecognizedTextItems()
+            navController.popBackStack()
+        }
         Scaffold(
             Modifier.fillMaxSize(),
             topBar = {
@@ -231,8 +227,7 @@ fun ImageListing(
                     actions = {
                         if (listOfRecognizedTextItem.value.isNullOrEmpty().not()) {
                             IconButton(onClick = {
-                                Logger.debug("Clicked on save")
-                                onSaveOptionClicked = true
+                                onClickSave = true
                             }) {
                                 Icon(
                                     imageVector = Icons.Filled.Done,
@@ -240,7 +235,10 @@ fun ImageListing(
                                 )
                             }
                         }
-                    }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                    )
                 )
             },
             floatingActionButton = {
@@ -249,7 +247,7 @@ fun ImageListing(
                         .padding(20.dp),
                     onClick = {
                         if (cameraPermissionState.hasPermission) {
-                            onFabClick()
+                            navController.navigate(Screens.MLKitTextRecognition.name)
                         } else {
                             cameraPermissionState.launchPermissionRequest()
                         }
@@ -267,21 +265,32 @@ fun ImageListing(
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    listOfRecognizedTextItem.value?.let {
-                        LazyColumn {
 
-                            itemsIndexed(it) { index, item ->
-                                item.thumbnail?.let { it1 ->
-                                    DocumentCard(
-                                        onClick = {
-                                            selectedItem.value = item
-                                            onScannedCardClick = true
-                                        },
-                                        thumbnail = it1,
-                                        heading = "Scan no. $index",
-                                        description = ""
-                                    )
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+
+                    if (onStartProgress) {
+                        CircularProgressIndicator()
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.TopCenter)
+                    ) {
+                        listOfRecognizedTextItem.value?.let {
+                            LazyColumn {
+                                itemsIndexed(it) { index, item ->
+                                    item.thumbnail?.let { it1 ->
+                                        DocumentCard(
+                                            onClick = {
+                                                selectedItem.value = item
+                                                onItemClickListener = true
+                                            },
+                                            thumbnail = it1,
+                                            heading = "Scan no. $index",
+                                            description = ""
+                                        )
+                                    }
                                 }
                             }
                         }
