@@ -138,7 +138,7 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShowTopAppBar(showDeleteAllDialog: MutableState<Boolean>, listOfAllScans: List<Scans>) {
+private fun ShowTopAppBar(showDeleteAllDialog: MutableState<Boolean>, listOfAllScans: List<Scans>) {
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -164,7 +164,7 @@ fun ShowTopAppBar(showDeleteAllDialog: MutableState<Boolean>, listOfAllScans: Li
 }
 
 @Composable
-fun ShowFloatingActionButton(navController: NavController) {
+private fun ShowFloatingActionButton(navController: NavController) {
     FloatingActionButton(
         modifier = Modifier
             .padding(20.dp),
@@ -181,7 +181,7 @@ fun ShowFloatingActionButton(navController: NavController) {
 }
 
 @Composable
-fun ShowAlterDialogForDeleteAllScans(
+private fun ShowAlterDialogForDeleteAllScans(
     showDeleteAllDialog: MutableState<Boolean>,
     scansViewModel: ScansViewModel
 ) {
