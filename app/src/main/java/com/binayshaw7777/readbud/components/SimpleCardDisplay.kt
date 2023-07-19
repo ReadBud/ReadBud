@@ -46,6 +46,5 @@ fun SimpleCardDisplay(onClick: () -> Unit, heading: String) {
                 )
             }
         }
-
     }
 }

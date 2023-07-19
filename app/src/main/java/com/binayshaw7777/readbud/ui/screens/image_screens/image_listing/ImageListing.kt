@@ -33,10 +33,13 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,210 +58,58 @@ import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.navigation.Screens
 import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
-import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
-import com.binayshaw7777.readbud.utils.Logger
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberPermissionState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ImageListing(
-    imageViewModel: ImageViewModel,
-    scansViewModel: ScansViewModel,
-    navController: NavController
+    imageViewModel: ImageViewModel, scansViewModel: ScansViewModel, navController: NavController
 ) {
 
     val cameraPermissionState: PermissionState = rememberPermissionState(Manifest.permission.CAMERA)
     val listOfRecognizedTextItem = imageViewModel.recognizedTextItemList.observeAsState()
     val onSaveObserverState = scansViewModel.onCompleteSaveIntoDB.observeAsState()
 
-    var onStartProgress by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val onStartProgress = remember { mutableStateOf(false) }
+
+    val onClickSave = remember { mutableStateOf(false) }
+    val onItemClickListener = remember { mutableStateOf(false) }
+    val selectedItem = remember { mutableStateOf(RecognizedTextItem()) }
 
     if (onSaveObserverState.value == true) {
         scansViewModel.onCompleteSaveIntoDB.postValue(false)
-        onStartProgress = false
+        onStartProgress.value = false
         navController.navigateUp()
     }
-    var onClickSave by remember {
-        mutableStateOf(false)
-    }
-    var onItemClickListener by remember { mutableStateOf(false) }
 
-    val selectedItem = remember {
-        mutableStateOf(RecognizedTextItem())
+    if (onClickSave.value) {
+        ShowBottomSheetForSaving(onClickSave, scansViewModel, imageViewModel)
     }
 
-    if (onClickSave) {
-        ModalBottomSheet(
-            onDismissRequest = { onClickSave = false }
-        ) {
-
-            var saveAsFileName by remember { mutableStateOf("") }
-
-            Column(
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.save_file_name_as),
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Start,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                TextField(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    value = saveAsFileName,
-                    onValueChange = { saveAsFileName = it },
-                    colors = TextFieldDefaults.textFieldColors(
-                        focusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                        errorIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(onClick = {
-                        onClickSave = false
-                    }) {
-                        Text(text = stringResource(R.string.cancel))
-                    }
-                    Button(onClick = {
-                        scansViewModel.saveIntoDB(
-                            saveAsFileName,
-                            imageViewModel.clearAllRecognizedTextItems()
-                        )
-                        onClickSave = false
-                    }) {
-                        Text(text = stringResource(R.string.save))
-                    }
-                }
-            }
-        }
-    }
-
-    if (onItemClickListener) {
-        Logger.debug("Selected item is: ${selectedItem.value}")
-        selectedItem.value.extractedText?.let { value ->
-
-            ModalBottomSheet(
-                onDismissRequest = { onItemClickListener = false }
-            ) {
-                var updatedString by remember {
-                    mutableStateOf(value)
-                }
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .padding(16.dp)
-                ) {
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = stringResource(R.string.edit_recognized_text),
-                            fontSize = 16.sp,
-                            textAlign = TextAlign.Start,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Button(onClick = {
-                            selectedItem.value.extractedText = updatedString
-                            imageViewModel.updateRecognizedItem(selectedItem.value)
-                            onStartProgress = true
-                            onItemClickListener = false
-                        }) {
-                            Text(text = stringResource(id = R.string.save))
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    TextField(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        value = updatedString,
-                        onValueChange = { updatedString = it },
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                            errorIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
-                        ),
-                    )
-                }
-            }
-        }
+    if (onItemClickListener.value) {
+        ShowBottomSheetOnItemClick(onItemClickListener, onStartProgress, selectedItem, imageViewModel)
     }
 
     BackHandler(true) {
         imageViewModel.clearAllRecognizedTextItems()
         navController.popBackStack()
     }
-    Scaffold(
-        Modifier.fillMaxSize(),
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        stringResource(id = R.string.select_images),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                actions = {
-                    if (listOfRecognizedTextItem.value.isNullOrEmpty().not()) {
-                        IconButton(onClick = {
-                            onClickSave = true
-                        }) {
-                            Icon(
-                                imageVector = Icons.Filled.Done,
-                                contentDescription = stringResource(R.string.save_into_database)
-                            )
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent
-                )
-            )
-        },
+    Scaffold(Modifier.fillMaxSize(),
+
+        topBar = { ShowTopAppBar(listOfRecognizedTextItem, onClickSave) },
+
         floatingActionButton = {
-            FloatingActionButton(
-                modifier = Modifier
-                    .padding(20.dp),
-                onClick = {
-                    if (cameraPermissionState.hasPermission) {
-                        navController.navigate(Screens.MLKitTextRecognition.name)
-                    } else {
-                        cameraPermissionState.launchPermissionRequest()
-                    }
-                },
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.camera_icon),
-                    contentDescription = stringResource(R.string.add_fab),
-                )
-            }
-        }) { padding ->
+            ShowFloatingActionButton(navController, cameraPermissionState, scope)
+        }
+
+    ) { padding ->
+
         Surface(
             modifier = Modifier
                 .fillMaxSize()
@@ -267,9 +118,7 @@ fun ImageListing(
 
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
-                if (onStartProgress) {
-                    CircularProgressIndicator()
-                }
+                if (onStartProgress.value) { CircularProgressIndicator() }
 
                 Column(
                     modifier = Modifier
@@ -283,7 +132,7 @@ fun ImageListing(
                                     DocumentCard(
                                         onClick = {
                                             selectedItem.value = item
-                                            onItemClickListener = true
+                                            onItemClickListener.value = true
                                         },
                                         thumbnail = it1,
                                         heading = "Scan no. $index",
@@ -293,6 +142,183 @@ fun ImageListing(
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ShowTopAppBar(
+    listOfRecognizedTextItem: State<List<RecognizedTextItem>?>, onClickSave: MutableState<Boolean>
+) {
+    CenterAlignedTopAppBar(title = {
+        Text(
+            stringResource(id = R.string.select_images),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }, actions = {
+        if (listOfRecognizedTextItem.value.isNullOrEmpty().not()) {
+            IconButton(onClick = {
+                onClickSave.value = true
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.Done,
+                    contentDescription = stringResource(R.string.save_into_database)
+                )
+            }
+        }
+    }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+        containerColor = Color.Transparent
+    )
+    )
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun ShowFloatingActionButton(
+    navController: NavController, cameraPermissionState: PermissionState, scope: CoroutineScope
+) {
+    FloatingActionButton(
+        modifier = Modifier.padding(20.dp),
+        onClick = {
+            if (cameraPermissionState.hasPermission) {
+                scope.launch {
+                    navController.navigate(Screens.MLKitTextRecognition.name)
+                }
+            } else {
+                cameraPermissionState.launchPermissionRequest()
+            }
+        },
+        shape = RoundedCornerShape(16.dp),
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.camera_icon),
+            contentDescription = stringResource(R.string.add_fab),
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShowBottomSheetOnItemClick(
+    onItemClickListener: MutableState<Boolean>,
+    onStartProgress: MutableState<Boolean>,
+    selectedItem: MutableState<RecognizedTextItem>,
+    imageViewModel: ImageViewModel
+) {
+
+    selectedItem.value.extractedText?.let { value ->
+        ModalBottomSheet(onDismissRequest = { onItemClickListener.value = false }) {
+
+            var updatedRecognizedTextValue by remember {
+                mutableStateOf(value)
+            }
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(16.dp)
+            ) {
+                Spacer(modifier = Modifier.height(20.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = stringResource(R.string.edit_recognized_text),
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Start,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Button(onClick = {
+                        selectedItem.value.extractedText = updatedRecognizedTextValue
+                        imageViewModel.updateRecognizedItem(selectedItem.value)
+                        onStartProgress.value = true
+                        onItemClickListener.value = false
+                    }) {
+                        Text(text = stringResource(id = R.string.save))
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = updatedRecognizedTextValue,
+                    onValueChange = { updatedRecognizedTextValue = it },
+                    colors = TextFieldDefaults.textFieldColors(
+                        focusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        errorIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShowBottomSheetForSaving(
+    onClickSave: MutableState<Boolean>,
+    scansViewModel: ScansViewModel,
+    imageViewModel: ImageViewModel
+) {
+    ModalBottomSheet(onDismissRequest = { onClickSave.value = false }) {
+
+        var saveAsFileName by remember { mutableStateOf("") }
+
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.save_file_name_as),
+                fontSize = 16.sp,
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = saveAsFileName,
+                onValueChange = { saveAsFileName = it },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+                    errorIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(onClick = {
+                    onClickSave.value = false
+                }) {
+                    Text(text = stringResource(R.string.cancel))
+                }
+                Button(onClick = {
+                    scansViewModel.saveIntoDB(
+                        saveAsFileName, imageViewModel.clearAllRecognizedTextItems()
+                    )
+                    onClickSave.value = false
+                }) {
+                    Text(text = stringResource(R.string.save))
                 }
             }
         }
