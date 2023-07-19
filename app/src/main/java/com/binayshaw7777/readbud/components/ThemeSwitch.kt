@@ -46,7 +46,7 @@ fun ThemeSwitch(
     themeViewModel: ThemeViewModel = hiltViewModel(),
 ) {
 
-// this is to disable the ripple effect
+    // this is to disable the ripple effect
     val interactionSource = remember {
         MutableInteractionSource()
     }
@@ -61,7 +61,7 @@ fun ThemeSwitch(
         ) 1f else -1f
     )
 
-// outer rectangle with border
+    // outer rectangle with border
     Box(
         modifier = Modifier
             .size(width = width, height = height)
@@ -109,7 +109,7 @@ fun ThemeSwitch(
         }
     }
 
-// gap between switch and the text
+    // gap between switch and the text
     Spacer(modifier = Modifier.height(height = 16.dp))
 }
 

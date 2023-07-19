@@ -3,7 +3,6 @@ package com.binayshaw7777.readbud.model
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import kotlinx.parcelize.Parcelize
 
@@ -17,5 +16,3 @@ data class Scans(
     var pages: ArrayList<String>,
     var wordMeaningsJson: String
 ) : Parcelable
-
-
