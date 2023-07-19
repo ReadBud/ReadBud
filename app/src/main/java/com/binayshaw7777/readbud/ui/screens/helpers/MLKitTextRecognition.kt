@@ -27,7 +27,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
-import com.binayshaw7777.readbud.utils.Logger
 import com.binayshaw7777.readbud.utils.rotateBitmap
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -49,7 +48,6 @@ fun MLKitTextRecognition(
         mutableStateOf(false)
     }
     if (isClicked.value) {
-        Logger.debug("ExtractedTextFromMLKIT: ${extractedText.value}")
         imageViewModel.addRecognizedTextItems(recognizedTxtItems.value)
         isClicked.value = false
         navController.popBackStack()
@@ -169,6 +167,3 @@ class ObjectDetectorImageAnalyzer(
         }
     }
 }
-
-
-
