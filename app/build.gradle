@@ -3,6 +3,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-parcelize'
     id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
@@ -53,7 +55,7 @@ android {
 
 dependencies {
 
-    def nav_version = "2.4.0-alpha04"
+    def nav_version = "2.6.0"
     def lifecycle_version = "2.6.1"
 
     implementation 'androidx.core:core-ktx:1.8.0'
@@ -125,4 +127,19 @@ dependencies {
     implementation "androidx.compose.runtime:runtime-livedata:1.4.3"
     annotationProcessor "androidx.room:room-compiler:2.5.2"
     kapt "androidx.room:room-compiler:2.5.2"
+
+    //hilt
+    implementation("com.google.dagger:hilt-android:2.44")
+    kapt("com.google.dagger:hilt-android-compiler:2.44")
+    implementation("androidx.hilt:hilt-work:1.0.0")
+    kapt("androidx.hilt:hilt-compiler:1.0.0")
+    implementation("androidx.work:work-runtime-ktx:2.8.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+
+    //BoM for the Firebase platform
+    implementation(platform("com.google.firebase:firebase-bom:32.2.0"))
+
+    //Crashlytics and Analytics libraries
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-analytics")
 }

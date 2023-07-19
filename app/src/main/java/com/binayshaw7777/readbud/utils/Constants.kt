@@ -12,4 +12,5 @@ object Constants {
     const val EXTRACTED_TEXT = "extracted_text"
     const val COMMON_WORDS = "common_words_unique.json"
     const val DICTIONARY = "dictionary_words.json"
+    const val MEANING = "meaning"
 }

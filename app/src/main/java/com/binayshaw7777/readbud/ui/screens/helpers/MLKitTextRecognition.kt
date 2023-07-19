@@ -31,6 +31,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.binayshaw7777.readbud.model.RecognizedTextItem
+import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
 import com.binayshaw7777.readbud.utils.Constants.EXTRACTED_TEXT
 import com.binayshaw7777.readbud.utils.Logger
 import com.binayshaw7777.readbud.utils.rotateBitmap
@@ -44,6 +45,7 @@ import java.util.concurrent.Executors
 @Composable
 fun MLKitTextRecognition(
     navController: NavController,
+    imageViewModel: ImageViewModel
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -54,10 +56,7 @@ fun MLKitTextRecognition(
     }
     if (isClicked.value) {
         Logger.debug("ExtractedTextFromMLKIT: ${extractedText.value}")
-        navController.previousBackStackEntry?.savedStateHandle?.set(
-            EXTRACTED_TEXT,
-            recognizedTxtItems.value
-        )
+        imageViewModel.addRecognizedTextItems(recognizedTxtItems.value)
         isClicked.value = false
         navController.popBackStack()
     }
