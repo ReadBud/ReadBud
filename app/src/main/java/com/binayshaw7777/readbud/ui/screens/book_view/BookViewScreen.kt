@@ -59,6 +59,7 @@ import eu.wewox.pagecurl.page.PageCurl
 import java.util.Locale
 import java.util.regex.Pattern
 
+//Just a pattern checking code that processes at compile-time
 private val WHITESPACE = Pattern.compile("\\s+")
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPageCurlApi::class)
