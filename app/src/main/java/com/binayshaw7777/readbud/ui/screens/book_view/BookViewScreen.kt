@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
+import com.binayshaw7777.readbud.model.Scans
 import com.binayshaw7777.readbud.utils.Constants.MEANING
 import com.binayshaw7777.readbud.utils.Logger
 import com.binayshaw7777.readbud.utils.jsonToHashMap
@@ -62,7 +63,7 @@ import java.util.regex.Pattern
 //Just a pattern checking code that processes at compile-time
 private val WHITESPACE = Pattern.compile("\\s+")
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPageCurlApi::class)
+@OptIn(ExperimentalPageCurlApi::class)
 @Composable
 fun BookViewScreen(
     scanId: Int,
@@ -87,28 +88,10 @@ fun BookViewScreen(
     }
 
     Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        scanItemResult?.scanName.toString(),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        navController.popBackStack()
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.go_back)
-                        )
-                    }
-                }
-            )
-        }
+        topBar = { ShowTopAppBar(scanItemResult, navController) }
+
     ) { padding ->
+
         Box(
             Modifier
                 .fillMaxSize()
@@ -129,6 +112,30 @@ fun BookViewScreen(
         }
     }
 
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShowTopAppBar(scanItemResult: Scans?, navController: NavController) {
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                scanItemResult?.scanName.toString(),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = {
+                navController.popBackStack()
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.go_back)
+                )
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -290,6 +297,5 @@ fun getAnnotatedString(words: List<String>, wordMeanings: Map<String, String>): 
         }
         toAnnotatedString()
     }
-
     return annotatedString
 }
