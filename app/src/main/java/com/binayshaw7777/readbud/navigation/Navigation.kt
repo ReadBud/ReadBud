@@ -120,7 +120,7 @@ fun Navigation(imageViewModel: ImageViewModel) {
                 val scanViewModel = hiltViewModel<ScansViewModel>()
                 BookViewScreen(scanId, scanViewModel, navController)
             }
-            composable(SETTINGS) { SettingsScreens(navController) }
+            composable(SETTINGS) { SettingsScreens() }
             composable(IMAGE_LISTING) {
                 val scanViewModel = hiltViewModel<ScansViewModel>()
                 ImageListing(imageViewModel, scanViewModel, navController)

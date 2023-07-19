@@ -2,7 +2,6 @@ package com.binayshaw7777.readbud.ui.screens.helpers
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -13,12 +12,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +27,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
-import com.binayshaw7777.readbud.utils.Constants.EXTRACTED_TEXT
 import com.binayshaw7777.readbud.utils.Logger
 import com.binayshaw7777.readbud.utils.rotateBitmap
 import com.google.mlkit.vision.common.InputImage

@@ -9,8 +9,8 @@ object Constants {
     const val IMAGE_LISTING = "image_listing"
     const val ML_KIT_RECOGNITION = "ml_kit_recognition"
     const val BOOK_VIEW = "book_view"
-    const val EXTRACTED_TEXT = "extracted_text"
     const val COMMON_WORDS = "common_words_unique.json"
     const val DICTIONARY = "dictionary_words.json"
     const val MEANING = "meaning"
+    const val APP_URL = "https://github.com/binayshaw7777/ReadBud/"
 }

@@ -5,9 +5,11 @@
     <string name="search_your_last_scan">Search your last scan</string>
     <string name="add_fab">Add FAB</string>
     <string name="appearance">Appearance</string>
+    <string name="share">Share</string>
+    <string name="rate">Rate</string>
+    <string name="need_help">Need Help?</string>
     <string name="storage_and_data">Storage and Data</string>
     <string name="about">About</string>
-    <string name="general">General</string>
     <string name="select_images">Select Images</string>
     <string name="delete_all_scans">Delete all scans</string>
     <string name="do_you_want_to_clear_all_scans_permanently">Do you want to clear all scans permanently?</string>
@@ -20,4 +22,5 @@
     <string name="save_file_name_as">Save file name as</string>
     <string name="edit_recognized_text">Edit Recognized Text</string>
     <string name="go_back">Go Back</string>
+    <string name="on_share_message">Hi, checkout this awesome app which makes reading easy by finding jargon word meanings for you in just a snap.\n*Download*: https://github.com/binayshaw7777/ReadBud/</string>
 </resources>
