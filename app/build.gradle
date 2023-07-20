@@ -142,4 +142,7 @@ dependencies {
     //Crashlytics and Analytics libraries
     implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.firebase:firebase-analytics")
+
+    //Swipe Gesture
+    implementation "me.saket.swipe:swipe:1.2.0"
 }

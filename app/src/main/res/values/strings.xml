@@ -23,4 +23,6 @@
     <string name="edit_recognized_text">Edit Recognized Text</string>
     <string name="go_back">Go Back</string>
     <string name="on_share_message">Hi, checkout this awesome app which makes reading easy by finding jargon word meanings for you in just a snap.\n*Download*: https://github.com/binayshaw7777/ReadBud/</string>
+    <string name="delete_item">Delete Item</string>
+    <string name="do_you_want_to_this_scan_permanently">Do you want to this scan permanently?</string>
 </resources>

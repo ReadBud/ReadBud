@@ -41,6 +41,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -50,7 +51,10 @@ import com.binayshaw7777.readbud.components.SimpleCardDisplay
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.Scans
 import com.binayshaw7777.readbud.navigation.Screens
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import me.saket.swipe.SwipeAction
+import me.saket.swipe.SwipeableActionsBox
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -121,19 +125,96 @@ fun HomeScreen(
                             ignoreCase = true
                         )
                     }) { item ->
-                        SimpleCardDisplay(
-                            onClick = {
-                                scope.launch {
-                                    onItemClicked(item.id)
-                                }
-                            },
-                            heading = item.scanName,
-                        )
+                        OnSwipeList(item, onItemClicked = { clickedItem ->
+                            onItemClicked(clickedItem)
+                        }, scope, scansViewModel)
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+fun OnSwipeList(
+    item: Scans,
+    onItemClicked: (itemId: Int) -> Unit,
+    scope: CoroutineScope,
+    scansViewModel: ScansViewModel
+) {
+
+    val showDeleteItemDialog = remember { mutableStateOf(false) }
+
+    val deleteAction = SwipeAction(
+        onSwipe = {
+            showDeleteItemDialog.value = true
+        },
+        icon = {
+            Icon(
+                modifier = Modifier.padding(12.dp),
+                imageVector = Icons.Default.Delete,
+                contentDescription = null,
+                tint = Color.White
+            )
+        },
+        background = Color.Red,
+    )
+
+    if (showDeleteItemDialog.value) {
+        ShowDeleteItemDialog(item, showDeleteItemDialog, scansViewModel)
+    }
+
+    SwipeableActionsBox(
+        swipeThreshold = 100.dp,
+        endActions = listOf(deleteAction)
+    ) {
+
+        SimpleCardDisplay(
+            onClick = {
+                scope.launch {
+                    onItemClicked(item.id)
+                }
+            },
+            heading = item.scanName,
+        )
+    }
+}
+
+@Composable
+fun ShowDeleteItemDialog(item: Scans, showDeleteItemDialog: MutableState<Boolean>, scansViewModel: ScansViewModel) {
+    AlertDialog(
+        onDismissRequest = {
+            showDeleteItemDialog.value = false
+        },
+        icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+        title = {
+            Text(text = stringResource(R.string.delete_item))
+        },
+        text = {
+            Text(
+                stringResource(R.string.do_you_want_to_this_scan_permanently)
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    scansViewModel.deleteScanItem(item)
+                    showDeleteItemDialog.value = false
+                }
+            ) {
+                Text(stringResource(R.string.delete))
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    showDeleteItemDialog.value = false
+                }
+            ) {
+                Text(stringResource(R.string.don_t_delete))
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

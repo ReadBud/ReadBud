@@ -33,6 +33,10 @@ class ScansViewModel @Inject constructor(
         _scanItemLiveData.postValue(Scans(0, "null", arrayListOf(), "{}"))
     }
 
+    fun deleteScanItem(scan: Scans) = viewModelScope.launch(Dispatchers.IO) {
+        scanRepository.deleteScansFromRoom(scan)
+    }
+
     fun saveIntoDB(scanName: String, listOfPages: List<RecognizedTextItem>?) =
         viewModelScope.launch(Dispatchers.IO) {
             val pages: ArrayList<String> = ArrayList()
