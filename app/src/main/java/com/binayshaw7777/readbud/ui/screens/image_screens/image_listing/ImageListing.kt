@@ -16,7 +16,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,6 +31,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
@@ -63,6 +66,8 @@ import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import me.saket.swipe.SwipeAction
+import me.saket.swipe.SwipeableActionsBox
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -127,16 +132,15 @@ fun ImageListing(
                 ) {
                     listOfRecognizedTextItem.value?.let {
                         LazyColumn {
-                            itemsIndexed(it) { index, item ->
-                                item.thumbnail?.let { it1 ->
-                                    DocumentCard(
-                                        onClick = {
+                            itemsIndexed(it) { _, item ->
+                                item.thumbnail?.let {
+                                    OnSwipeList(
+                                        item = item,
+                                        onItemClicked = {
                                             selectedItem.value = item
                                             onItemClickListener.value = true
-                                        },
-                                        thumbnail = it1,
-                                        heading = "Scan no. $index",
-                                        description = ""
+                                        } ,
+                                        imageViewModel = imageViewModel
                                     )
                                 }
                             }
@@ -146,6 +150,87 @@ fun ImageListing(
             }
         }
     }
+}
+
+@Composable
+fun OnSwipeList(
+    item: RecognizedTextItem,
+    onItemClicked: (itemId: Int) -> Unit,
+    imageViewModel: ImageViewModel
+) {
+
+    val showDeleteItemDialog = remember { mutableStateOf(false) }
+
+    val deleteAction = SwipeAction(
+        onSwipe = {
+            showDeleteItemDialog.value = true
+        },
+        icon = {
+            Icon(
+                modifier = Modifier.padding(12.dp),
+                imageVector = Icons.Default.Delete,
+                contentDescription = null,
+                tint = Color.White
+            )
+        },
+        background = Color.Red,
+    )
+
+    if (showDeleteItemDialog.value) {
+        ShowDeleteItemDialog(item, showDeleteItemDialog, imageViewModel)
+    }
+
+    SwipeableActionsBox(
+        swipeThreshold = 100.dp,
+        endActions = listOf(deleteAction)
+    ) {
+
+        DocumentCard(
+            onClick = {
+                onItemClicked(item.index)
+            },
+            thumbnail = item.thumbnail!!,
+            heading = "Scan no. ${item.index}",
+            description = ""
+        )
+    }
+}
+
+@Composable
+fun ShowDeleteItemDialog(item: RecognizedTextItem, showDeleteItemDialog: MutableState<Boolean>, imageViewModel: ImageViewModel) {
+    AlertDialog(
+        onDismissRequest = {
+            showDeleteItemDialog.value = false
+        },
+        icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+        title = {
+            Text(text = stringResource(R.string.delete_item))
+        },
+        text = {
+            Text(
+                stringResource(R.string.do_you_want_to_this_scan_permanently)
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    imageViewModel.removeItemFromIndex(item.index)
+                    showDeleteItemDialog.value = false
+                }
+            ) {
+                Text(stringResource(R.string.delete))
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    showDeleteItemDialog.value = false
+                }
+            ) {
+                Text(stringResource(R.string.don_t_delete))
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -4,17 +4,27 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.binayshaw7777.readbud.model.RecognizedTextItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ImageViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _recognizedTextItemList = MutableLiveData<List<RecognizedTextItem>>()
     val recognizedTextItemList: LiveData<List<RecognizedTextItem>> = _recognizedTextItemList
 
-    fun clearAllRecognizedTextItems() : List<RecognizedTextItem>? {
+    fun clearAllRecognizedTextItems(): List<RecognizedTextItem>? {
         val currentList = _recognizedTextItemList.value
         _recognizedTextItemList.postValue(emptyList())
         return currentList
+    }
+
+    fun removeItemFromIndex(index: Int) = viewModelScope.launch(Dispatchers.IO) {
+        val currentList = arrayListOf<RecognizedTextItem>()
+        currentList.addAll(_recognizedTextItemList.value!!)
+        currentList.removeIf { it.index == index }
+        _recognizedTextItemList.postValue(currentList)
     }
 
     fun addRecognizedTextItems(recognizedTextItem: RecognizedTextItem) {
