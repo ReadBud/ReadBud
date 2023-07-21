@@ -41,6 +41,4 @@ class ThemeViewModel @Inject constructor(dataStoreUtil: DataStoreUtil) : ViewMod
             }
         }
     }
-
-
 }

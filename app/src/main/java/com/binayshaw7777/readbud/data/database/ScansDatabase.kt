@@ -7,7 +7,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.binayshaw7777.readbud.data.dao.ScansDAO
 import com.binayshaw7777.readbud.model.Converters
-import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.model.Scans
 
 @Database(entities = [Scans::class], version = 2)

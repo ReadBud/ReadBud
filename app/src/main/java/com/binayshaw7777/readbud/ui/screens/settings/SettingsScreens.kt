@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -28,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -55,8 +55,7 @@ fun SettingsScreens() {
     val context = LocalContext.current
     val settingsItem = getSettingsItems(context)
 
-    val onClickItem = remember { mutableStateOf(-1) }
-    val helpItem = getHelpItems(context)
+    val onClickItem = remember { mutableIntStateOf(-1) }
 
     val showAboutBottomSheet = remember {
         mutableStateOf(false)
@@ -73,9 +72,9 @@ fun SettingsScreens() {
         ShowHelpBottomSheet(showHelpBottomSheet)
     }
 
-    if (onClickItem.value != -1) {
+    if (onClickItem.intValue != -1) {
         val clickItemIs = SettingsItems.getItemNameFromString(
-            settingsItem[onClickItem.value].second
+            settingsItem[onClickItem.intValue].second
         )
 
         when (clickItemIs) {
@@ -101,7 +100,7 @@ fun SettingsScreens() {
 
             else -> {}
         }
-        onClickItem.value = -1
+        onClickItem.intValue = -1
     }
 
     Scaffold(
@@ -127,7 +126,7 @@ fun SettingsScreens() {
                                 title = settingsItem[it].second,
                                 showThemeSwitch = it == 0,
                                 onClickSettingsItem = {
-                                    onClickItem.value = it
+                                    onClickItem.intValue = it
                                 }
                             )
                         }
