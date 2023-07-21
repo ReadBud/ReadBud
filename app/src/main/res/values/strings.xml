@@ -25,4 +25,12 @@
     <string name="on_share_message">Hi, checkout this awesome app which makes reading easy by finding jargon word meanings for you in just a snap.\n*Download*: https://github.com/binayshaw7777/ReadBud/</string>
     <string name="delete_item">Delete Item</string>
     <string name="do_you_want_to_this_scan_permanently">Do you want to this scan permanently?</string>
+    <string name="about_app_description">ReadBud is an Android app used to extract jargon with its meaning from scanned images of a book or any form of text. It comes in handy when you\'re a beginner or want to save time by skipping the process of word meaning search on the Internet or any Dictionary</string>
+    <string name="purpose_app_description">The purpose of this app is very simple and straightforward. To use this app you only need Camera access. Start by clicking picture(s) of your pages from any book and save it. Open your saved scan and read the text extracted via OCR (ML-Kit) and click on the highlighted words (Jargon) to display their meaning on your screen. So simple, isn\'t it?</string>
+    <string name="how_to_use_readbud">How to use ReadBud?</string>
+    <string name="click_on_the_floating_action_button_on_the_bottom_right_side_of_your_screen_in_homepage">Click on the Floating Action Button on the Bottom Right side of your screen in Homepage</string>
+    <string name="click_on_the_the_camera_icon_on_the_bottom_right_of_your_screen_and_click_an_image_of_a_page_containing_texts">Click on the the Camera Icon on the Bottom Right of your screen and click an image of a page containing texts</string>
+    <string name="repeat_the_same_process_if_you_want_to_add_multiple_images_else_you_can_save_by_click_on_top_right_button_tick_mark">Repeat the same process if you want to add multiple images, else you can save by click on Top Right button (Tick mark)</string>
+    <string name="once_you_save_it_should_appear_on_homepage_by_clicking_any_scanned_document_it_will_take_you_to_the_book_view_page_where_you_can_view_the_texts_with_their_meanings">Once you save, it should appear on Homepage, by clicking any scanned document, it will take you to the Book View Page where you can view the texts with their meanings</string>
+    <string name="click_on_the_highlighted_texts_to_get_their_meaning_also_you_can_click_on_the_speaker_icon_to_invoke_tts_text_to_speech">Click on the highlighted texts to get their meaning, also you can click on the speaker icon to invoke TTS (Text to speech</string>
 </resources>
