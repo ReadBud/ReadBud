@@ -119,7 +119,7 @@ fun SettingsScreens() {
                                 }
                                 Row {
                                     if (it == 0) {
-                                        ThemeSwitch(themeViewModel = hiltViewModel())
+                                        ThemeSwitch()
                                     }
                                 }
                             }
