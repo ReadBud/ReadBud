@@ -13,7 +13,7 @@ import com.binayshaw7777.readbud.model.Scans
 @TypeConverters(Converters::class)
 abstract class ScansDatabase : RoomDatabase() {
 
-    abstract fun scansDao() : ScansDAO
+    abstract fun scansDao(): ScansDAO
 
     companion object {
         private var INSTANCE: ScansDatabase? = null
@@ -26,6 +26,7 @@ abstract class ScansDatabase : RoomDatabase() {
                         ScansDatabase::class.java,
                         "scans_database"
                     )
+                        .fallbackToDestructiveMigration()
                         .allowMainThreadQueries()
                         .build()
                     INSTANCE = instance
