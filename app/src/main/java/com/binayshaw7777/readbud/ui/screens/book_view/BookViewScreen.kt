@@ -1,21 +1,29 @@
 package com.binayshaw7777.readbud.ui.screens.book_view
 
+import android.speech.tts.TextToSpeech
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -51,6 +60,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
+import com.binayshaw7777.readbud.model.Scans
 import com.binayshaw7777.readbud.utils.Constants.MEANING
 import com.binayshaw7777.readbud.utils.Logger
 import com.binayshaw7777.readbud.utils.jsonToHashMap
@@ -62,7 +72,7 @@ import java.util.regex.Pattern
 //Just a pattern checking code that processes at compile-time
 private val WHITESPACE = Pattern.compile("\\s+")
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPageCurlApi::class)
+@OptIn(ExperimentalPageCurlApi::class)
 @Composable
 fun BookViewScreen(
     scanId: Int,
@@ -87,28 +97,10 @@ fun BookViewScreen(
     }
 
     Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        scanItemResult?.scanName.toString(),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        navController.popBackStack()
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.go_back)
-                        )
-                    }
-                }
-            )
-        }
+        topBar = { ShowTopAppBar(scanItemResult, navController) }
+
     ) { padding ->
+
         Box(
             Modifier
                 .fillMaxSize()
@@ -129,6 +121,30 @@ fun BookViewScreen(
         }
     }
 
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShowTopAppBar(scanItemResult: Scans?, navController: NavController) {
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                scanItemResult?.scanName.toString(),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = {
+                navController.popBackStack()
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.go_back)
+                )
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -195,6 +211,8 @@ fun Definition(
     selectedPair: MutableState<Pair<String, String>>,
     bottomSheetState: SheetState
 ) {
+    val context = LocalContext.current
+    var textToSpeech: TextToSpeech? = null
 
     // Sheet content
     if (showBottomSheet.value) {
@@ -210,14 +228,49 @@ fun Definition(
                     .navigationBarsPadding()
                     .padding(20.dp)
             ) {
-                Text(
-                    text = selectedPair.value.first,
-                    style = TextStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 30.sp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(modifier = Modifier
+                        .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
+                        .size(50.dp)
+                        .clickable(
+                            //This code prevents ripple effect
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
+                            textToSpeech = TextToSpeech(context) {
+                                if (it == TextToSpeech.SUCCESS) {
+                                    textToSpeech?.let { txtToSpeech ->
+                                        txtToSpeech.language = Locale.US
+                                        txtToSpeech.setSpeechRate(1.0f)
+                                        txtToSpeech.speak(
+                                            selectedPair.value.second,
+                                            TextToSpeech.QUEUE_ADD,
+                                            null,
+                                            null
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        imageVector = Icons.Filled.PlayArrow,
+                        contentDescription = "Text to speech",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-                )
+                    Spacer(modifier = Modifier.width(20.dp))
+                    Text(
+                        text = selectedPair.value.first.replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase(
+                                Locale.getDefault()
+                            ) else it.toString()
+                        },
+                        style = TextStyle(
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 30.sp,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            fontFamily = FontFamily.Serif
+                        )
+                    )
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = selectedPair.value.second)
             }
@@ -290,6 +343,5 @@ fun getAnnotatedString(words: List<String>, wordMeanings: Map<String, String>): 
         }
         toAnnotatedString()
     }
-
     return annotatedString
 }
