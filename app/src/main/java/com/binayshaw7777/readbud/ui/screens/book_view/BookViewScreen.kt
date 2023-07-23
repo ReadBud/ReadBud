@@ -4,7 +4,6 @@ import android.speech.tts.TextToSpeech
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +25,6 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -53,6 +51,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -267,7 +266,10 @@ fun ShowTopAppBar(
         },
         actions = {
             IconButton(onClick = { onShowBookPreviewPreferences() }) {
-                Icon(Icons.Outlined.Settings, contentDescription = stringResource(R.string.book_preview_preferences))
+                Icon(
+                    Icons.Outlined.Settings,
+                    contentDescription = stringResource(R.string.book_preview_preferences)
+                )
             }
         }
     )
@@ -344,6 +346,28 @@ fun Definition(
     val context = LocalContext.current
     var textToSpeech: TextToSpeech? = null
 
+    var invokeTTS by remember {
+        mutableStateOf(false)
+    }
+
+    if (invokeTTS) {
+        textToSpeech = TextToSpeech(context) {
+            if (it == TextToSpeech.SUCCESS && textToSpeech?.isSpeaking?.not() == true) {
+                textToSpeech?.let { txtToSpeech ->
+                    txtToSpeech.language = Locale.US
+                    txtToSpeech.setSpeechRate(1.0f)
+                    txtToSpeech.speak(
+                        selectedPair.value.second,
+                        TextToSpeech.QUEUE_ADD,
+                        null,
+                        null
+                    )
+                }
+            }
+        }
+        invokeTTS = false
+    }
+
     // Sheet content
     if (showBottomSheet.value) {
         ModalBottomSheet(
@@ -359,33 +383,24 @@ fun Definition(
                     .padding(20.dp)
             ) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(modifier = Modifier
+                    IconButton(modifier = Modifier
                         .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
-                        .size(50.dp)
-                        .clickable(
-                            //This code prevents ripple effect
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) {
-                            textToSpeech = TextToSpeech(context) {
-                                if (it == TextToSpeech.SUCCESS) {
-                                    textToSpeech?.let { txtToSpeech ->
-                                        txtToSpeech.language = Locale.US
-                                        txtToSpeech.setSpeechRate(1.0f)
-                                        txtToSpeech.speak(
-                                            selectedPair.value.second,
-                                            TextToSpeech.QUEUE_ADD,
-                                            null,
-                                            null
-                                        )
-                                    }
-                                }
-                            }
+                        .size(40.dp),
+                        onClick = {
+                            invokeTTS = true
                         },
-                        imageVector = Icons.Filled.PlayArrow,
-                        contentDescription = "Text to speech",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                        content = {
+                            Icon(
+                                painter = painterResource(
+                                    id = if (textToSpeech?.isSpeaking == true) {
+                                        R.drawable.stop_icon
+                                    } else R.drawable.speaker_icon
+                                ),
+                                contentDescription = stringResource(R.string.text_to_speech),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        })
+
                     Spacer(modifier = Modifier.width(20.dp))
                     Text(
                         text = selectedPair.value.first.replaceFirstChar {
