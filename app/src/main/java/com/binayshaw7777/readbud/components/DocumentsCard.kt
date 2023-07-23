@@ -28,7 +28,7 @@ fun DocumentCard(onClick: () -> Unit, thumbnail: Bitmap, heading: String, descri
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(0.dp, 10.dp)
+            .padding(20.dp, 10.dp)
             .clickable { onClick() },
     ) {
         Row(

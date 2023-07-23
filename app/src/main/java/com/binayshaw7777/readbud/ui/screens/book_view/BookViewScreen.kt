@@ -267,7 +267,7 @@ fun ShowTopAppBar(
         actions = {
             IconButton(onClick = { onShowBookPreviewPreferences() }) {
                 Icon(
-                    Icons.Outlined.Settings,
+                    painterResource(id = R.drawable.font_icon),
                     contentDescription = stringResource(R.string.book_preview_preferences)
                 )
             }
