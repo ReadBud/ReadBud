@@ -25,7 +25,6 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -89,6 +88,7 @@ fun BookViewScreen(
 ) {
 
     var listOfPages: List<String> = listOf()
+    val listOfAnnotatedString: ArrayList<AnnotatedString> = arrayListOf()
     var wordMeanings: HashMap<String, String> = hashMapOf()
 
     var fontSize by remember { mutableStateOf(16.sp) }
@@ -120,9 +120,17 @@ fun BookViewScreen(
     }
 
     scanItemResult?.let {
-        if (it.pages.isNotEmpty()) {
+        if (it.pages.isNotEmpty() && wordMeanings.isEmpty()) {
             listOfPages = it.pages
             wordMeanings = jsonToHashMap(it.wordMeaningsJson)
+
+            for (page in listOfPages.indices) {
+                val annotatedString = getAnnotatedString(
+                    WHITESPACE.split(listOfPages[page].trim()).toList(),
+                    wordMeanings
+                )
+                listOfAnnotatedString.add(annotatedString)
+                }
         }
     }
 
@@ -147,11 +155,7 @@ fun BookViewScreen(
         ) {
             if (listOfPages.isNotEmpty()) {
                 PageCurl(count = listOfPages.size) { index ->
-                    val annotatedString = getAnnotatedString(
-                        WHITESPACE.split(listOfPages[index].trim()).toList(),
-                        wordMeanings
-                    )
-                    PagePreview(index, annotatedString, fontSize, selectedTypeface)
+                    PagePreview(index, listOfAnnotatedString, fontSize, selectedTypeface)
                 }
             } else {
                 CircularProgressIndicator()
@@ -279,7 +283,7 @@ fun ShowTopAppBar(
 @Composable
 fun PagePreview(
     index: Int,
-    annotatedString: AnnotatedString,
+    annotatedString: ArrayList<AnnotatedString>,
     fontSize: TextUnit,
     fontFamily: SystemFontFamily,
     modifier: Modifier = Modifier
@@ -313,7 +317,7 @@ fun PagePreview(
         ) {
 
             DisplayParagraphWithMeanings(
-                annotatedString,
+                annotatedString[index],
                 fontSize,
                 fontFamily,
                 onClick = { pair ->
@@ -323,7 +327,7 @@ fun PagePreview(
             )
         }
         Text(
-            text = index.toString(),
+            text = (index + 1).toString(),
             color = MaterialTheme.colorScheme.background,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -464,7 +468,6 @@ fun DisplayParagraphWithMeanings(
 }
 
 fun getAnnotatedString(words: List<String>, wordMeanings: Map<String, String>): AnnotatedString {
-
     val annotatedString = buildAnnotatedString {
         for (word in words) {
             val meaning = wordMeanings[word.lowercase()]
