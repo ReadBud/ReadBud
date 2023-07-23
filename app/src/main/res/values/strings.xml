@@ -33,4 +33,6 @@
     <string name="repeat_the_same_process_if_you_want_to_add_multiple_images_else_you_can_save_by_click_on_top_right_button_tick_mark">Repeat the same process if you want to add multiple images, else you can save by click on Top Right button (Tick mark)</string>
     <string name="once_you_save_it_should_appear_on_homepage_by_clicking_any_scanned_document_it_will_take_you_to_the_book_view_page_where_you_can_view_the_texts_with_their_meanings">Once you save, it should appear on Homepage, by clicking any scanned document, it will take you to the Book View Page where you can view the texts with their meanings</string>
     <string name="click_on_the_highlighted_texts_to_get_their_meaning_also_you_can_click_on_the_speaker_icon_to_invoke_tts_text_to_speech">Click on the highlighted texts to get their meaning, also you can click on the speaker icon to invoke TTS (Text to speech</string>
+    <string name="default_typeface_mock">Aa</string>
+    <string name="book_preview_preferences">Book Preview Preferences</string>
 </resources>
