@@ -16,18 +16,16 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -69,17 +67,14 @@ import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.Scans
 import com.binayshaw7777.readbud.utils.Constants.MEANING
-import com.binayshaw7777.readbud.utils.Logger
 import com.binayshaw7777.readbud.utils.jsonToHashMap
-import eu.wewox.pagecurl.ExperimentalPageCurlApi
-import eu.wewox.pagecurl.page.PageCurl
 import java.util.Locale
 import java.util.regex.Pattern
 
 //Just a pattern checking code that processes at compile-time
 private val WHITESPACE = Pattern.compile("\\s+")
 
-@OptIn(ExperimentalPageCurlApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookViewScreen(
     scanId: Int,
@@ -130,7 +125,7 @@ fun BookViewScreen(
                     wordMeanings
                 )
                 listOfAnnotatedString.add(annotatedString)
-                }
+            }
         }
     }
 
@@ -153,16 +148,30 @@ fun BookViewScreen(
                 .padding(padding),
             contentAlignment = Alignment.Center
         ) {
-            if (listOfPages.isNotEmpty()) {
-                PageCurl(count = listOfPages.size) { index ->
-                    PagePreview(index, listOfAnnotatedString, fontSize, selectedTypeface)
+            LazyColumn(Modifier.fillMaxSize()) {
+                itemsIndexed(listOfPages) { index, _ ->
+                    PagePreview(
+                        index = index,
+                        annotatedString = listOfAnnotatedString,
+                        fontSize = fontSize,
+                        fontFamily = selectedTypeface
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.LightGray)
+                            .height(30.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Page: ${index + 1}",
+                            color = Color.Black
+                        )
+                    }
                 }
-            } else {
-                CircularProgressIndicator()
             }
         }
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -326,17 +335,6 @@ fun PagePreview(
                 }
             )
         }
-        Text(
-            text = (index + 1).toString(),
-            color = MaterialTheme.colorScheme.background,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .background(
-                    MaterialTheme.colorScheme.onBackground,
-                    RoundedCornerShape(topStartPercent = 100)
-                )
-                .padding(16.dp)
-        )
     }
 }
 
@@ -434,10 +432,8 @@ fun DisplayParagraphWithMeanings(
     fontFamily: SystemFontFamily,
     onClick: (Pair<String, String>) -> Unit
 ) {
-    val scroll = rememberScrollState(0)
 
     ClickableText(
-        modifier = Modifier.verticalScroll(scroll),
         text = annotatedString,
         style = TextStyle(
             fontSize = fontSize,
@@ -472,8 +468,6 @@ fun getAnnotatedString(words: List<String>, wordMeanings: Map<String, String>): 
         for (word in words) {
             val meaning = wordMeanings[word.lowercase()]
 
-            Logger.debug("Word and meaning: $word - $meaning")
-
             if (meaning.isNullOrEmpty()) {
                 append("$word ")
             } else {
@@ -484,7 +478,6 @@ fun getAnnotatedString(words: List<String>, wordMeanings: Map<String, String>): 
                         fontWeight = FontWeight.SemiBold
                     )
                 ) {
-                    Logger.debug("Appending with style: $word")
                     append(word)
                 }
                 append(" ")
