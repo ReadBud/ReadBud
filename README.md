@@ -1,4 +1,4 @@
-![Banner](https://github.com/binayshaw7777/ReadBud/assets/62587060/bfef3102-2a22-426a-8430-b291d1e7ea47)
+![Banner1](https://github.com/binayshaw7777/ReadBud/assets/62587060/33445e4c-d2a9-4790-9e7b-790059700b50)
 
 # ReadBud 📚
 ReadBud is an Android app used to extract jargon with its meaning from scanned images of a book or any form of text. It comes in handy when you're a beginner or want to save time by skipping the process of word meaning search on the Internet or any Dictionary
