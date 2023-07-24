@@ -46,7 +46,7 @@ fun Navigation(imageViewModel: ImageViewModel) {
     val backStackEntry = navController.currentBackStackEntryAsState()
 
     val screensWithoutNavBar = listOf(
-        Screens.MLKitTextRecognition.name, "${Screens.BookView.name}/{scanId}", Screens.ItemListing.name
+        Screens.MLKitTextRecognition.name, "${Screens.BookView.name}/{scanId}", Screens.ImageListing.name
     )
 
     Scaffold(

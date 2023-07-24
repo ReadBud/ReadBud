@@ -250,7 +250,7 @@ private fun ShowFloatingActionButton(navController: NavController) {
         modifier = Modifier
             .padding(20.dp),
         onClick = {
-            navController.navigate(Screens.ItemListing.name)
+            navController.navigate(Screens.ImageListing.name)
         },
         shape = RoundedCornerShape(16.dp),
     ) {

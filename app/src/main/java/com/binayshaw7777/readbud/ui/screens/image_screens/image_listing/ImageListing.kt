@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.AlertDialog
@@ -98,16 +99,27 @@ fun ImageListing(
     }
 
     if (onItemClickListener.value) {
-        ShowBottomSheetOnItemClick(onItemClickListener, onStartProgress, selectedItem, imageViewModel)
+        ShowBottomSheetOnItemClick(
+            onItemClickListener,
+            onStartProgress,
+            selectedItem,
+            imageViewModel
+        )
     }
 
     BackHandler(true) {
-        imageViewModel.clearAllRecognizedTextItems()
-        navController.popBackStack()
+        onBackPressHandler(imageViewModel, navController)
     }
     Scaffold(Modifier.fillMaxSize(),
 
-        topBar = { ShowTopAppBar(listOfRecognizedTextItem, onClickSave) },
+        topBar = {
+            ShowTopAppBar(
+                listOfRecognizedTextItem,
+                onClickSave,
+                navController,
+                imageViewModel
+            )
+        },
 
         floatingActionButton = {
             ShowFloatingActionButton(navController, cameraPermissionState, scope)
@@ -123,7 +135,9 @@ fun ImageListing(
 
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
-                if (onStartProgress.value) { CircularProgressIndicator() }
+                if (onStartProgress.value) {
+                    CircularProgressIndicator()
+                }
 
                 Column(
                     modifier = Modifier
@@ -139,7 +153,7 @@ fun ImageListing(
                                         onItemClicked = {
                                             selectedItem.value = item
                                             onItemClickListener.value = true
-                                        } ,
+                                        },
                                         imageViewModel = imageViewModel
                                     )
                                 }
@@ -150,6 +164,11 @@ fun ImageListing(
             }
         }
     }
+}
+
+private fun onBackPressHandler(imageViewModel: ImageViewModel, navController: NavController) {
+    imageViewModel.clearAllRecognizedTextItems()
+    navController.popBackStack()
 }
 
 @Composable
@@ -197,7 +216,11 @@ fun OnSwipeList(
 }
 
 @Composable
-fun ShowDeleteItemDialog(item: RecognizedTextItem, showDeleteItemDialog: MutableState<Boolean>, imageViewModel: ImageViewModel) {
+fun ShowDeleteItemDialog(
+    item: RecognizedTextItem,
+    showDeleteItemDialog: MutableState<Boolean>,
+    imageViewModel: ImageViewModel
+) {
     AlertDialog(
         onDismissRequest = {
             showDeleteItemDialog.value = false
@@ -236,7 +259,10 @@ fun ShowDeleteItemDialog(item: RecognizedTextItem, showDeleteItemDialog: Mutable
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ShowTopAppBar(
-    listOfRecognizedTextItem: State<List<RecognizedTextItem>?>, onClickSave: MutableState<Boolean>
+    listOfRecognizedTextItem: State<List<RecognizedTextItem>?>,
+    onClickSave: MutableState<Boolean>,
+    navController: NavController,
+    imageViewModel: ImageViewModel
 ) {
     CenterAlignedTopAppBar(title = {
         Text(
@@ -244,6 +270,15 @@ private fun ShowTopAppBar(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+    }, navigationIcon = {
+        IconButton(onClick = {
+            onBackPressHandler(imageViewModel, navController)
+        }) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = stringResource(R.string.go_back)
+            )
+        }
     }, actions = {
         if (listOfRecognizedTextItem.value.isNullOrEmpty().not()) {
             IconButton(onClick = {
