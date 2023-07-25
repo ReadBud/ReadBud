@@ -4,7 +4,6 @@ import android.speech.tts.TextToSpeech
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,20 +16,16 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -71,17 +67,14 @@ import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.Scans
 import com.binayshaw7777.readbud.utils.Constants.MEANING
-import com.binayshaw7777.readbud.utils.Logger
 import com.binayshaw7777.readbud.utils.jsonToHashMap
-import eu.wewox.pagecurl.ExperimentalPageCurlApi
-import eu.wewox.pagecurl.page.PageCurl
 import java.util.Locale
 import java.util.regex.Pattern
 
 //Just a pattern checking code that processes at compile-time
 private val WHITESPACE = Pattern.compile("\\s+")
 
-@OptIn(ExperimentalPageCurlApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookViewScreen(
     scanId: Int,
@@ -90,6 +83,7 @@ fun BookViewScreen(
 ) {
 
     var listOfPages: List<String> = listOf()
+    val listOfAnnotatedString: ArrayList<AnnotatedString> = arrayListOf()
     var wordMeanings: HashMap<String, String> = hashMapOf()
 
     var fontSize by remember { mutableStateOf(16.sp) }
@@ -121,9 +115,17 @@ fun BookViewScreen(
     }
 
     scanItemResult?.let {
-        if (it.pages.isNotEmpty()) {
+        if (it.pages.isNotEmpty() && wordMeanings.isEmpty()) {
             listOfPages = it.pages
             wordMeanings = jsonToHashMap(it.wordMeaningsJson)
+
+            for (page in listOfPages.indices) {
+                val annotatedString = getAnnotatedString(
+                    WHITESPACE.split(listOfPages[page].trim()).toList(),
+                    wordMeanings
+                )
+                listOfAnnotatedString.add(annotatedString)
+            }
         }
     }
 
@@ -146,20 +148,30 @@ fun BookViewScreen(
                 .padding(padding),
             contentAlignment = Alignment.Center
         ) {
-            if (listOfPages.isNotEmpty()) {
-                PageCurl(count = listOfPages.size) { index ->
-                    val annotatedString = getAnnotatedString(
-                        WHITESPACE.split(listOfPages[index].trim()).toList(),
-                        wordMeanings
+            LazyColumn(Modifier.fillMaxSize()) {
+                itemsIndexed(listOfPages) { index, _ ->
+                    PagePreview(
+                        index = index,
+                        annotatedString = listOfAnnotatedString,
+                        fontSize = fontSize,
+                        fontFamily = selectedTypeface
                     )
-                    PagePreview(index, annotatedString, fontSize, selectedTypeface)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.LightGray)
+                            .height(30.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Page: ${index + 1}",
+                            color = Color.Black
+                        )
+                    }
                 }
-            } else {
-                CircularProgressIndicator()
             }
         }
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -267,7 +279,10 @@ fun ShowTopAppBar(
         },
         actions = {
             IconButton(onClick = { onShowBookPreviewPreferences() }) {
-                Icon(Icons.Outlined.Settings, contentDescription = stringResource(R.string.book_preview_preferences))
+                Icon(
+                    painterResource(id = R.drawable.font_icon),
+                    contentDescription = stringResource(R.string.book_preview_preferences)
+                )
             }
         }
     )
@@ -277,7 +292,7 @@ fun ShowTopAppBar(
 @Composable
 fun PagePreview(
     index: Int,
-    annotatedString: AnnotatedString,
+    annotatedString: ArrayList<AnnotatedString>,
     fontSize: TextUnit,
     fontFamily: SystemFontFamily,
     modifier: Modifier = Modifier
@@ -311,7 +326,7 @@ fun PagePreview(
         ) {
 
             DisplayParagraphWithMeanings(
-                annotatedString,
+                annotatedString[index],
                 fontSize,
                 fontFamily,
                 onClick = { pair ->
@@ -320,17 +335,6 @@ fun PagePreview(
                 }
             )
         }
-        Text(
-            text = index.toString(),
-            color = MaterialTheme.colorScheme.background,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .background(
-                    MaterialTheme.colorScheme.onBackground,
-                    RoundedCornerShape(topStartPercent = 100)
-                )
-                .padding(16.dp)
-        )
     }
 }
 
@@ -343,6 +347,28 @@ fun Definition(
 ) {
     val context = LocalContext.current
     var textToSpeech: TextToSpeech? = null
+
+    var invokeTTS by remember {
+        mutableStateOf(false)
+    }
+
+    if (invokeTTS) {
+        textToSpeech = TextToSpeech(context) {
+            if (it == TextToSpeech.SUCCESS && textToSpeech?.isSpeaking?.not() == true) {
+                textToSpeech?.let { txtToSpeech ->
+                    txtToSpeech.language = Locale.US
+                    txtToSpeech.setSpeechRate(1.0f)
+                    txtToSpeech.speak(
+                        selectedPair.value.second,
+                        TextToSpeech.QUEUE_ADD,
+                        null,
+                        null
+                    )
+                }
+            }
+        }
+        invokeTTS = false
+    }
 
     // Sheet content
     if (showBottomSheet.value) {
@@ -359,33 +385,24 @@ fun Definition(
                     .padding(20.dp)
             ) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(modifier = Modifier
+                    IconButton(modifier = Modifier
                         .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
-                        .size(50.dp)
-                        .clickable(
-                            //This code prevents ripple effect
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) {
-                            textToSpeech = TextToSpeech(context) {
-                                if (it == TextToSpeech.SUCCESS) {
-                                    textToSpeech?.let { txtToSpeech ->
-                                        txtToSpeech.language = Locale.US
-                                        txtToSpeech.setSpeechRate(1.0f)
-                                        txtToSpeech.speak(
-                                            selectedPair.value.second,
-                                            TextToSpeech.QUEUE_ADD,
-                                            null,
-                                            null
-                                        )
-                                    }
-                                }
-                            }
+                        .size(40.dp),
+                        onClick = {
+                            invokeTTS = true
                         },
-                        imageVector = Icons.Filled.PlayArrow,
-                        contentDescription = "Text to speech",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                        content = {
+                            Icon(
+                                painter = painterResource(
+                                    id = if (textToSpeech?.isSpeaking == true) {
+                                        R.drawable.stop_icon
+                                    } else R.drawable.speaker_icon
+                                ),
+                                contentDescription = stringResource(R.string.text_to_speech),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        })
+
                     Spacer(modifier = Modifier.width(20.dp))
                     Text(
                         text = selectedPair.value.first.replaceFirstChar {
@@ -415,10 +432,8 @@ fun DisplayParagraphWithMeanings(
     fontFamily: SystemFontFamily,
     onClick: (Pair<String, String>) -> Unit
 ) {
-    val scroll = rememberScrollState(0)
 
     ClickableText(
-        modifier = Modifier.verticalScroll(scroll),
         text = annotatedString,
         style = TextStyle(
             fontSize = fontSize,
@@ -449,12 +464,9 @@ fun DisplayParagraphWithMeanings(
 }
 
 fun getAnnotatedString(words: List<String>, wordMeanings: Map<String, String>): AnnotatedString {
-
     val annotatedString = buildAnnotatedString {
         for (word in words) {
             val meaning = wordMeanings[word.lowercase()]
-
-            Logger.debug("Word and meaning: $word - $meaning")
 
             if (meaning.isNullOrEmpty()) {
                 append("$word ")
@@ -466,7 +478,6 @@ fun getAnnotatedString(words: List<String>, wordMeanings: Map<String, String>): 
                         fontWeight = FontWeight.SemiBold
                     )
                 ) {
-                    Logger.debug("Appending with style: $word")
                     append(word)
                 }
                 append(" ")

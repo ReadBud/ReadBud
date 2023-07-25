@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "789823545321",
+    "project_id": "readbud-a6057",
+    "storage_bucket": "readbud-a6057.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:789823545321:android:7889c45ff74a36d989f578",
+        "android_client_info": {
+          "package_name": "com.binayshaw7777.readbud"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "789823545321-gugn62v9nthfokgsfc7onnbofv27dsra.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDX3XX_n-URACWsuBKN08my68yQwV1CYeA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "789823545321-gugn62v9nthfokgsfc7onnbofv27dsra.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

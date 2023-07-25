@@ -35,4 +35,8 @@
     <string name="click_on_the_highlighted_texts_to_get_their_meaning_also_you_can_click_on_the_speaker_icon_to_invoke_tts_text_to_speech">Click on the highlighted texts to get their meaning, also you can click on the speaker icon to invoke TTS (Text to speech</string>
     <string name="default_typeface_mock">Aa</string>
     <string name="book_preview_preferences">Book Preview Preferences</string>
+    <string name="text_to_speech">Text to speech</string>
+    <string name="no_saved_scans_click_on_the_camera_button_to_scan">No saved scans\nClick on the camera button to scan</string>
+    <string name="no_scans_added">No Scans added</string>
+    <string name="no_records_found_click_on_the_button_to_add">No records found\nClick on the \(+\) button to add</string>
 </resources>

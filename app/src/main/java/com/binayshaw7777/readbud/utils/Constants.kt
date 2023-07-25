@@ -5,6 +5,7 @@ object Constants {
     const val HOME = "home"
     const val SETTINGS = "settings"
     const val IMAGE_LISTING = "image_listing"
+    const val SCANNING = "scanning"
     const val ML_KIT_RECOGNITION = "ml_kit_recognition"
     const val BOOK_VIEW = "book_view"
     const val COMMON_WORDS = "common_words_unique.json"

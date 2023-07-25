@@ -92,8 +92,6 @@ fun SettingsScreens() {
                 )
             }
 
-            SettingsItems.STORAGE -> {}
-
             SettingsItems.ABOUT -> {
                 showAboutBottomSheet.value = true
             }
@@ -252,7 +250,6 @@ fun getSettingsItems(context: Context): List<Pair<Int, String>> {
     val resources = context.resources
     return arrayListOf(
         Pair(R.drawable.appearance_icon, resources.getString(R.string.appearance)),
-        Pair(R.drawable.storage_icon, resources.getString(R.string.storage_and_data)),
         Pair(R.drawable.help_icon, resources.getString(R.string.need_help)),
         Pair(R.drawable.info_icon, resources.getString(R.string.about)),
         Pair(R.drawable.share_icon, resources.getString(R.string.share)),

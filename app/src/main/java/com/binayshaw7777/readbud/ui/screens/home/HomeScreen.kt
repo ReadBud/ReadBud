@@ -47,10 +47,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.binayshaw7777.readbud.R
+import com.binayshaw7777.readbud.components.EmptyState
 import com.binayshaw7777.readbud.components.SimpleCardDisplay
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.Scans
-import com.binayshaw7777.readbud.navigation.Screens
+import com.binayshaw7777.readbud.utils.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import me.saket.swipe.SwipeAction
@@ -118,17 +119,25 @@ fun HomeScreen(
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
-                LazyColumn {
-                    items(listOfAllScans.filter {
-                        it.scanName.contains(
-                            searchBarFilterQuery,
-                            ignoreCase = true
-                        )
-                    }) { item ->
-                        OnSwipeList(item, onItemClicked = { clickedItem ->
-                            onItemClicked(clickedItem)
-                        }, scope, scansViewModel)
+
+                if (listOfAllScans.isNotEmpty()) {
+                    LazyColumn {
+                        items(listOfAllScans.filter {
+                            it.scanName.contains(
+                                searchBarFilterQuery,
+                                ignoreCase = true
+                            )
+                        }) { item ->
+                            OnSwipeList(item, onItemClicked = { clickedItem ->
+                                onItemClicked(clickedItem)
+                            }, scope, scansViewModel)
+                        }
                     }
+                } else {
+                    EmptyState(
+                        contentDescription = stringResource(id = R.string.no_scans_added),
+                        message = stringResource(R.string.no_records_found_click_on_the_button_to_add)
+                    )
                 }
             }
         }
@@ -250,7 +259,7 @@ private fun ShowFloatingActionButton(navController: NavController) {
         modifier = Modifier
             .padding(20.dp),
         onClick = {
-            navController.navigate(Screens.ItemListing.name)
+            navController.navigate(Constants.SCANNING)
         },
         shape = RoundedCornerShape(16.dp),
     ) {

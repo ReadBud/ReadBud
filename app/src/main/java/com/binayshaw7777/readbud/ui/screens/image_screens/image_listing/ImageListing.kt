@@ -3,7 +3,6 @@ package com.binayshaw7777.readbud.ui.screens.image_screens.image_listing
 import android.Manifest
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,12 +15,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -57,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.components.DocumentCard
+import com.binayshaw7777.readbud.components.EmptyState
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.navigation.Screens
@@ -81,7 +81,6 @@ fun ImageListing(
     val onSaveObserverState = scansViewModel.onCompleteSaveIntoDB.observeAsState()
 
     val scope = rememberCoroutineScope()
-    val onStartProgress = remember { mutableStateOf(false) }
 
     val onClickSave = remember { mutableStateOf(false) }
     val onItemClickListener = remember { mutableStateOf(false) }
@@ -89,7 +88,6 @@ fun ImageListing(
 
     if (onSaveObserverState.value == true) {
         scansViewModel.onCompleteSaveIntoDB.postValue(false)
-        onStartProgress.value = false
         navController.navigateUp()
     }
 
@@ -98,16 +96,26 @@ fun ImageListing(
     }
 
     if (onItemClickListener.value) {
-        ShowBottomSheetOnItemClick(onItemClickListener, onStartProgress, selectedItem, imageViewModel)
+        ShowBottomSheetOnItemClick(
+            onItemClickListener,
+            selectedItem,
+            imageViewModel
+        )
     }
 
     BackHandler(true) {
-        imageViewModel.clearAllRecognizedTextItems()
-        navController.popBackStack()
+        onBackPressHandler(imageViewModel, navController)
     }
     Scaffold(Modifier.fillMaxSize(),
 
-        topBar = { ShowTopAppBar(listOfRecognizedTextItem, onClickSave) },
+        topBar = {
+            ShowTopAppBar(
+                listOfRecognizedTextItem,
+                onClickSave,
+                navController,
+                imageViewModel
+            )
+        },
 
         floatingActionButton = {
             ShowFloatingActionButton(navController, cameraPermissionState, scope)
@@ -115,41 +123,40 @@ fun ImageListing(
 
     ) { padding ->
 
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
+        Surface(modifier = Modifier.padding(padding)) {
+            Column {
+                if (listOfRecognizedTextItem.value?.isNotEmpty() == true) {
 
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-
-                if (onStartProgress.value) { CircularProgressIndicator() }
-
-                Column(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .align(Alignment.TopCenter)
-                ) {
-                    listOfRecognizedTextItem.value?.let {
-                        LazyColumn {
-                            itemsIndexed(it) { _, item ->
-                                item.thumbnail?.let {
-                                    OnSwipeList(
-                                        item = item,
-                                        onItemClicked = {
-                                            selectedItem.value = item
-                                            onItemClickListener.value = true
-                                        } ,
-                                        imageViewModel = imageViewModel
-                                    )
-                                }
+                    LazyColumn {
+                        itemsIndexed(listOfRecognizedTextItem.value!!) { _, item ->
+                            item.thumbnail?.let {
+                                OnSwipeList(
+                                    item = item,
+                                    onItemClicked = {
+                                        selectedItem.value = item
+                                        onItemClickListener.value = true
+                                    },
+                                    imageViewModel = imageViewModel
+                                )
                             }
                         }
                     }
+                } else {
+                    EmptyState(
+                        contentDescription = stringResource(id = R.string.no_scans_added),
+                        message = stringResource(
+                            id = R.string.no_saved_scans_click_on_the_camera_button_to_scan
+                        )
+                    )
                 }
             }
         }
     }
+}
+
+private fun onBackPressHandler(imageViewModel: ImageViewModel, navController: NavController) {
+    imageViewModel.clearAllRecognizedTextItems()
+    navController.popBackStack()
 }
 
 @Composable
@@ -197,7 +204,11 @@ fun OnSwipeList(
 }
 
 @Composable
-fun ShowDeleteItemDialog(item: RecognizedTextItem, showDeleteItemDialog: MutableState<Boolean>, imageViewModel: ImageViewModel) {
+fun ShowDeleteItemDialog(
+    item: RecognizedTextItem,
+    showDeleteItemDialog: MutableState<Boolean>,
+    imageViewModel: ImageViewModel
+) {
     AlertDialog(
         onDismissRequest = {
             showDeleteItemDialog.value = false
@@ -236,7 +247,10 @@ fun ShowDeleteItemDialog(item: RecognizedTextItem, showDeleteItemDialog: Mutable
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ShowTopAppBar(
-    listOfRecognizedTextItem: State<List<RecognizedTextItem>?>, onClickSave: MutableState<Boolean>
+    listOfRecognizedTextItem: State<List<RecognizedTextItem>?>,
+    onClickSave: MutableState<Boolean>,
+    navController: NavController,
+    imageViewModel: ImageViewModel
 ) {
     CenterAlignedTopAppBar(title = {
         Text(
@@ -244,6 +258,15 @@ private fun ShowTopAppBar(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+    }, navigationIcon = {
+        IconButton(onClick = {
+            onBackPressHandler(imageViewModel, navController)
+        }) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = stringResource(R.string.go_back)
+            )
+        }
     }, actions = {
         if (listOfRecognizedTextItem.value.isNullOrEmpty().not()) {
             IconButton(onClick = {
@@ -290,7 +313,6 @@ fun ShowFloatingActionButton(
 @Composable
 fun ShowBottomSheetOnItemClick(
     onItemClickListener: MutableState<Boolean>,
-    onStartProgress: MutableState<Boolean>,
     selectedItem: MutableState<RecognizedTextItem>,
     imageViewModel: ImageViewModel
 ) {
@@ -326,7 +348,6 @@ fun ShowBottomSheetOnItemClick(
                     Button(onClick = {
                         selectedItem.value.extractedText = updatedRecognizedTextValue
                         imageViewModel.updateRecognizedItem(selectedItem.value)
-                        onStartProgress.value = true
                         onItemClickListener.value = false
                     }) {
                         Text(text = stringResource(id = R.string.save))
