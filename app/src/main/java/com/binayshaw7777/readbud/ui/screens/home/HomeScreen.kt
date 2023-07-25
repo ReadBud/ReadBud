@@ -51,7 +51,7 @@ import com.binayshaw7777.readbud.components.EmptyState
 import com.binayshaw7777.readbud.components.SimpleCardDisplay
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.Scans
-import com.binayshaw7777.readbud.navigation.Screens
+import com.binayshaw7777.readbud.utils.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import me.saket.swipe.SwipeAction
@@ -259,7 +259,7 @@ private fun ShowFloatingActionButton(navController: NavController) {
         modifier = Modifier
             .padding(20.dp),
         onClick = {
-            navController.navigate(Screens.ImageListing.name)
+            navController.navigate(Constants.SCANNING)
         },
         shape = RoundedCornerShape(16.dp),
     ) {

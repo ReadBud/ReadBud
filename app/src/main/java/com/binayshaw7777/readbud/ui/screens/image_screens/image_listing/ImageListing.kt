@@ -124,8 +124,7 @@ fun ImageListing(
     ) { padding ->
 
         Surface(modifier = Modifier.padding(padding)) {
-            Column(modifier = Modifier.padding(16.dp)) {
-
+            Column {
                 if (listOfRecognizedTextItem.value?.isNotEmpty() == true) {
 
                     LazyColumn {

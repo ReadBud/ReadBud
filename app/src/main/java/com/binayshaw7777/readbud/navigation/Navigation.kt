@@ -23,6 +23,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navigation
+import com.binayshaw7777.readbud.components.animation.NavigationAnimation
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.BottomNavItem
 import com.binayshaw7777.readbud.ui.screens.book_view.BookViewScreen
@@ -35,6 +37,7 @@ import com.binayshaw7777.readbud.utils.Constants.BOOK_VIEW
 import com.binayshaw7777.readbud.utils.Constants.HOME
 import com.binayshaw7777.readbud.utils.Constants.IMAGE_LISTING
 import com.binayshaw7777.readbud.utils.Constants.ML_KIT_RECOGNITION
+import com.binayshaw7777.readbud.utils.Constants.SCANNING
 import com.binayshaw7777.readbud.utils.Constants.SETTINGS
 
 @Composable
@@ -46,7 +49,9 @@ fun Navigation(imageViewModel: ImageViewModel) {
     val backStackEntry = navController.currentBackStackEntryAsState()
 
     val screensWithoutNavBar = listOf(
-        Screens.MLKitTextRecognition.name, "${Screens.BookView.name}/{scanId}", Screens.ImageListing.name
+        Screens.MLKitTextRecognition.name,
+        "${Screens.BookView.name}/{scanId}",
+        Screens.ImageListing.name
     )
 
     Scaffold(
@@ -87,14 +92,17 @@ fun Navigation(imageViewModel: ImageViewModel) {
 
             composable(SETTINGS) { SettingsScreens() }
 
-            composable(IMAGE_LISTING) {
+            navigation(startDestination = IMAGE_LISTING, route = SCANNING) {
+                composable(IMAGE_LISTING) {
+                    NavigationAnimation {
+                        val scanViewModel = hiltViewModel<ScansViewModel>()
+                        ImageListing(imageViewModel, scanViewModel, navController)
+                    }
+                }
 
-                val scanViewModel = hiltViewModel<ScansViewModel>()
-                ImageListing(imageViewModel, scanViewModel, navController)
-            }
-
-            composable(ML_KIT_RECOGNITION) {
-                MLKitTextRecognition(navController, imageViewModel)
+                composable(ML_KIT_RECOGNITION) {
+                    MLKitTextRecognition(navController, imageViewModel)
+                }
             }
         }
     }
