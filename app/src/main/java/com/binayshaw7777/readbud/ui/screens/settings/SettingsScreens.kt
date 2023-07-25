@@ -213,7 +213,7 @@ fun ShowAboutBottomSheet(showAboutBottomSheet: MutableState<Boolean>) {
                 modifier = Modifier
                     .clip(CircleShape.copy(CornerSize(40.dp)))
                     .size(80.dp),
-                painter = painterResource(R.drawable.logo_main_light),
+                painter = painterResource(R.drawable.circular_logo),
                 contentDescription = stringResource(R.string.app_name)
             )
             Spacer(modifier = Modifier.width(20.dp))
