@@ -3,7 +3,6 @@ package com.binayshaw7777.readbud.model
 
 enum class SettingsItems {
     APPEARANCE,
-    STORAGE,
     NEED_HELP,
     SHARE,
     RATE,
@@ -25,10 +24,6 @@ enum class SettingsItems {
 
                 "Rate" -> {
                     RATE
-                }
-
-                "Storage" -> {
-                    STORAGE
                 }
 
                 "About" -> {
