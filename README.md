@@ -45,7 +45,7 @@ flowchart TD
     A --> B[Home screen]
     A --> C[Settings screen]
     B --> H[List of all Scans]
-    H --> |Diplay text with styling| D[BookView]
+    H --> |Display text with styling| D[BookView]
     B --> E[Select Images]
     E --> |Click via camera and return| F[Camera Preview]
     E --> |Pick from Gallery and return| G[Gallery Preview]
