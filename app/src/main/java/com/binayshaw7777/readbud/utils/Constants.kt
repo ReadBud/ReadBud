@@ -11,5 +11,5 @@ object Constants {
     const val COMMON_WORDS = "common_words_unique.json"
     const val DICTIONARY = "dictionary_words.json"
     const val MEANING = "meaning"
-    const val APP_URL = "https://github.com/binayshaw7777/ReadBud/"
+    const val APP_URL = "https://play.google.com/store/apps/details?id=com.binayshaw7777.readbud"
 }
