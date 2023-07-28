@@ -39,4 +39,6 @@
     <string name="no_saved_scans_click_on_the_camera_button_to_scan">No saved scans\nClick on the camera button to scan</string>
     <string name="no_scans_added">No Scans added</string>
     <string name="no_records_found_click_on_the_button_to_add">No records found\nClick on the \(+\) button to add</string>
+    <string name="go_to_app_setting">Go to app setting</string>
+    <string name="ok">OK</string>
 </resources>
