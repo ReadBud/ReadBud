@@ -1,7 +1,10 @@
-package com.binayshaw7777.readbud.ui.screens.image_screens.image_listing
+package com.binayshaw7777.readbud.ui.screens.image_screens.image_listing_screen
 
-import android.Manifest
+import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,13 +42,16 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -57,30 +63,57 @@ import androidx.navigation.NavController
 import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.components.DocumentCard
 import com.binayshaw7777.readbud.components.EmptyState
+import com.binayshaw7777.readbud.components.PermissionAlertDialog
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
+import com.binayshaw7777.readbud.model.NeededPermission
 import com.binayshaw7777.readbud.model.RecognizedTextItem
+import com.binayshaw7777.readbud.model.getNeededPermission
 import com.binayshaw7777.readbud.navigation.Screens
-import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
-import com.google.accompanist.permissions.rememberPermissionState
-import kotlinx.coroutines.CoroutineScope
+import com.binayshaw7777.readbud.viewmodel.ImageSharedViewModel
+import com.binayshaw7777.readbud.utils.goToAppSetting
 import kotlinx.coroutines.launch
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun ImageListing(
-    imageViewModel: ImageViewModel, scansViewModel: ScansViewModel, navController: NavController
+fun ImageListingScreen(
+    imageSharedViewModel: ImageSharedViewModel, scansViewModel: ScansViewModel, navController: NavController
 ) {
 
-    val cameraPermissionState: PermissionState = rememberPermissionState(Manifest.permission.CAMERA)
-    val listOfRecognizedTextItem = imageViewModel.recognizedTextItemList.observeAsState()
+    val activity = LocalContext.current as Activity
+    val scope = rememberCoroutineScope()
+
+    val permissionDialog = remember {
+        mutableStateListOf<NeededPermission>()
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (!isGranted)
+                permissionDialog.add(NeededPermission.CAMERA_PERMISSION)
+            else {
+                scope.launch {
+                    navController.navigate(Screens.CameraCaptureScreen.name)
+                }
+            }
+        }
+    )
+
+    val multiplePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            permissions.entries.forEach { entry ->
+                if (!entry.value)
+                    permissionDialog.add(getNeededPermission(entry.key))
+            }
+        }
+    )
+
+    val listOfRecognizedTextItem = imageSharedViewModel.recognizedTextItemList.observeAsState()
     val onSaveObserverState = scansViewModel.onCompleteSaveIntoDB.observeAsState()
 
-    val scope = rememberCoroutineScope()
 
     val onClickSave = remember { mutableStateOf(false) }
     val onItemClickListener = remember { mutableStateOf(false) }
@@ -92,19 +125,19 @@ fun ImageListing(
     }
 
     if (onClickSave.value) {
-        ShowBottomSheetForSaving(onClickSave, scansViewModel, imageViewModel)
+        ShowBottomSheetForSaving(onClickSave, scansViewModel, imageSharedViewModel)
     }
 
     if (onItemClickListener.value) {
         ShowBottomSheetOnItemClick(
             onItemClickListener,
             selectedItem,
-            imageViewModel
+            imageSharedViewModel
         )
     }
 
     BackHandler(true) {
-        onBackPressHandler(imageViewModel, navController)
+        onBackPressHandler(imageSharedViewModel, navController)
     }
     Scaffold(Modifier.fillMaxSize(),
 
@@ -113,12 +146,17 @@ fun ImageListing(
                 listOfRecognizedTextItem,
                 onClickSave,
                 navController,
-                imageViewModel
+                imageSharedViewModel
             )
         },
 
         floatingActionButton = {
-            ShowFloatingActionButton(navController, cameraPermissionState, scope)
+            ShowFloatingActionButton(
+                cameraPermissionLauncher,
+                activity,
+                permissionDialog,
+                multiplePermissionLauncher,
+            )
         }
 
     ) { padding ->
@@ -136,7 +174,7 @@ fun ImageListing(
                                         selectedItem.value = item
                                         onItemClickListener.value = true
                                     },
-                                    imageViewModel = imageViewModel
+                                    imageSharedViewModel = imageSharedViewModel
                                 )
                             }
                         }
@@ -154,8 +192,8 @@ fun ImageListing(
     }
 }
 
-private fun onBackPressHandler(imageViewModel: ImageViewModel, navController: NavController) {
-    imageViewModel.clearAllRecognizedTextItems()
+private fun onBackPressHandler(imageSharedViewModel: ImageSharedViewModel, navController: NavController) {
+    imageSharedViewModel.clearAllRecognizedTextItems()
     navController.popBackStack()
 }
 
@@ -163,7 +201,7 @@ private fun onBackPressHandler(imageViewModel: ImageViewModel, navController: Na
 fun OnSwipeList(
     item: RecognizedTextItem,
     onItemClicked: (itemId: Int) -> Unit,
-    imageViewModel: ImageViewModel
+    imageSharedViewModel: ImageSharedViewModel
 ) {
 
     val showDeleteItemDialog = remember { mutableStateOf(false) }
@@ -184,7 +222,7 @@ fun OnSwipeList(
     )
 
     if (showDeleteItemDialog.value) {
-        ShowDeleteItemDialog(item, showDeleteItemDialog, imageViewModel)
+        ShowDeleteItemDialog(item, showDeleteItemDialog, imageSharedViewModel)
     }
 
     SwipeableActionsBox(
@@ -207,7 +245,7 @@ fun OnSwipeList(
 fun ShowDeleteItemDialog(
     item: RecognizedTextItem,
     showDeleteItemDialog: MutableState<Boolean>,
-    imageViewModel: ImageViewModel
+    imageSharedViewModel: ImageSharedViewModel
 ) {
     AlertDialog(
         onDismissRequest = {
@@ -225,7 +263,7 @@ fun ShowDeleteItemDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    imageViewModel.removeItemFromIndex(item.index)
+                    imageSharedViewModel.removeItemFromIndex(item.index)
                     showDeleteItemDialog.value = false
                 }
             ) {
@@ -250,7 +288,7 @@ private fun ShowTopAppBar(
     listOfRecognizedTextItem: State<List<RecognizedTextItem>?>,
     onClickSave: MutableState<Boolean>,
     navController: NavController,
-    imageViewModel: ImageViewModel
+    imageSharedViewModel: ImageSharedViewModel
 ) {
     CenterAlignedTopAppBar(title = {
         Text(
@@ -260,7 +298,7 @@ private fun ShowTopAppBar(
         )
     }, navigationIcon = {
         IconButton(onClick = {
-            onBackPressHandler(imageViewModel, navController)
+            onBackPressHandler(imageSharedViewModel, navController)
         }) {
             Icon(
                 imageVector = Icons.Filled.ArrowBack,
@@ -284,27 +322,39 @@ private fun ShowTopAppBar(
     )
 }
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ShowFloatingActionButton(
-    navController: NavController, cameraPermissionState: PermissionState, scope: CoroutineScope
+    cameraPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
+    activity: Activity,
+    permissionDialog: SnapshotStateList<NeededPermission>,
+    multiplePermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>,
 ) {
     FloatingActionButton(
         modifier = Modifier.padding(20.dp),
         onClick = {
-            if (cameraPermissionState.hasPermission) {
-                scope.launch {
-                    navController.navigate(Screens.MLKitTextRecognition.name)
-                }
-            } else {
-                cameraPermissionState.launchPermissionRequest()
-            }
+            cameraPermissionLauncher.launch(NeededPermission.CAMERA_PERMISSION.permission)
         },
         shape = RoundedCornerShape(16.dp),
     ) {
         Icon(
             painter = painterResource(id = R.drawable.camera_icon),
             contentDescription = stringResource(R.string.add_fab),
+        )
+    }
+
+    permissionDialog.forEach { permission ->
+        PermissionAlertDialog(
+            neededPermission = permission,
+            onDismiss = { permissionDialog.remove(permission) },
+            onOkClick = {
+                permissionDialog.remove(permission)
+                multiplePermissionLauncher.launch(arrayOf(permission.permission))
+            },
+            onGoToAppSettingsClick = {
+                permissionDialog.remove(permission)
+                activity.goToAppSetting()
+            },
+            isPermissionDeclined = !activity.shouldShowRequestPermissionRationale(permission.permission)
         )
     }
 }
@@ -314,7 +364,7 @@ fun ShowFloatingActionButton(
 fun ShowBottomSheetOnItemClick(
     onItemClickListener: MutableState<Boolean>,
     selectedItem: MutableState<RecognizedTextItem>,
-    imageViewModel: ImageViewModel
+    imageSharedViewModel: ImageSharedViewModel
 ) {
 
     selectedItem.value.extractedText?.let { value ->
@@ -347,7 +397,7 @@ fun ShowBottomSheetOnItemClick(
                     )
                     Button(onClick = {
                         selectedItem.value.extractedText = updatedRecognizedTextValue
-                        imageViewModel.updateRecognizedItem(selectedItem.value)
+                        imageSharedViewModel.updateRecognizedItem(selectedItem.value)
                         onItemClickListener.value = false
                     }) {
                         Text(text = stringResource(id = R.string.save))
@@ -375,7 +425,7 @@ fun ShowBottomSheetOnItemClick(
 fun ShowBottomSheetForSaving(
     onClickSave: MutableState<Boolean>,
     scansViewModel: ScansViewModel,
-    imageViewModel: ImageViewModel
+    imageSharedViewModel: ImageSharedViewModel
 ) {
     ModalBottomSheet(onDismissRequest = { onClickSave.value = false }) {
 
@@ -420,7 +470,7 @@ fun ShowBottomSheetForSaving(
                 }
                 Button(onClick = {
                     scansViewModel.saveIntoDB(
-                        saveAsFileName, imageViewModel.clearAllRecognizedTextItems()
+                        saveAsFileName, imageSharedViewModel.clearAllRecognizedTextItems()
                     )
                     onClickSave.value = false
                 }) {

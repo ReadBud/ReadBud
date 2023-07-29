@@ -22,7 +22,7 @@
     <string name="save_file_name_as">Save file name as</string>
     <string name="edit_recognized_text">Edit Recognized Text</string>
     <string name="go_back">Go Back</string>
-    <string name="on_share_message">Hi, checkout this awesome app which makes reading easy by finding jargon word meanings for you in just a snap.\n*Download*: https://github.com/binayshaw7777/ReadBud/</string>
+    <string name="on_share_message">Hi, checkout this awesome app which makes reading easy by finding jargon word meanings for you in just a snap.\n*Download*: https://play.google.com/store/apps/details?id=com.binayshaw7777.readbud</string>
     <string name="delete_item">Delete Item</string>
     <string name="do_you_want_to_this_scan_permanently">Do you want to this scan permanently?</string>
     <string name="about_app_description">ReadBud is an Android app used to extract jargon with its meaning from scanned images of a book or any form of text. It comes in handy when you\'re a beginner or want to save time by skipping the process of word meaning search on the Internet or any Dictionary</string>
@@ -39,4 +39,7 @@
     <string name="no_saved_scans_click_on_the_camera_button_to_scan">No saved scans\nClick on the camera button to scan</string>
     <string name="no_scans_added">No Scans added</string>
     <string name="no_records_found_click_on_the_button_to_add">No records found\nClick on the \(+\) button to add</string>
+    <string name="go_to_app_setting">Go to app setting</string>
+    <string name="ok">OK</string>
+    <string name="no_text_found_in_the_image">No Text found in the Image</string>
 </resources>

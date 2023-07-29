@@ -1,4 +1,4 @@
-package com.binayshaw7777.readbud.ui.screens.image_screens
+package com.binayshaw7777.readbud.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -9,7 +9,7 @@ import com.binayshaw7777.readbud.model.RecognizedTextItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ImageViewModel(application: Application) : AndroidViewModel(application) {
+class ImageSharedViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _recognizedTextItemList = MutableLiveData<List<RecognizedTextItem>>()
     val recognizedTextItemList: LiveData<List<RecognizedTextItem>> = _recognizedTextItemList

@@ -72,7 +72,7 @@ import java.util.Locale
 import java.util.regex.Pattern
 
 //Just a pattern checking code that processes at compile-time
-private val WHITESPACE = Pattern.compile("\\s+")
+private val WHITESPACE_PATTERN = Pattern.compile("\\s+")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,7 +121,7 @@ fun BookViewScreen(
 
             for (page in listOfPages.indices) {
                 val annotatedString = getAnnotatedString(
-                    WHITESPACE.split(listOfPages[page].trim()).toList(),
+                    WHITESPACE_PATTERN.split(listOfPages[page].trim()).toList(),
                     wordMeanings
                 )
                 listOfAnnotatedString.add(annotatedString)
@@ -373,7 +373,11 @@ fun Definition(
     // Sheet content
     if (showBottomSheet.value) {
         ModalBottomSheet(
-            onDismissRequest = { showBottomSheet.value = false },
+            onDismissRequest = {
+                textToSpeech?.stop()
+                textToSpeech?.shutdown()
+                showBottomSheet.value = false
+            },
             sheetState = bottomSheetState,
         ) {
             Column(
