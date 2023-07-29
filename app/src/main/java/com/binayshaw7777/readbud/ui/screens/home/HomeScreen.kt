@@ -47,6 +47,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.binayshaw7777.readbud.R
+import com.binayshaw7777.readbud.components.BackPressHandler
 import com.binayshaw7777.readbud.components.EmptyState
 import com.binayshaw7777.readbud.components.SimpleCardDisplay
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
@@ -66,6 +67,8 @@ fun HomeScreen(
     navController: NavController,
     onItemClicked: (scanId: Int) -> Unit
 ) {
+
+    BackPressHandler()
 
     val listOfAllScans by scansViewModel.listOfScans.observeAsState(listOf())
     var searchBarFilterQuery by remember { mutableStateOf("") }
