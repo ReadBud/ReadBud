@@ -98,9 +98,8 @@ fun BookViewScreen(
     val showBottomSheet = remember {
         mutableStateOf(false)
     }
-    val skipPartiallyExpanded by remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = skipPartiallyExpanded
+        skipPartiallyExpanded = true
     )
 
     if (showBottomSheet.value) {
