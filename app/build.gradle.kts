@@ -16,8 +16,8 @@ android {
         applicationId = "com.binayshaw7777.readbud"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -33,7 +33,7 @@ android {
                 "proguard-rules.pro")
         }
         named("debug") {
-
+            isDebuggable = true
         }
     }
     compileOptions {
@@ -64,6 +64,7 @@ dependencies {
     val navVersion = "2.6.0"
     val lifecycleVersion = "2.6.1"
     val cameraxVersion = "1.2.3"
+    val roomVersion = "2.5.2"
 
     implementation ("androidx.core:core-ktx:1.10.1")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
@@ -75,7 +76,7 @@ dependencies {
     implementation ("androidx.compose.runtime:runtime:1.4.3")
     implementation ("androidx.compose.runtime:runtime-livedata:1.4.3")
 
-
+    //Test Dependencies
     testImplementation ("junit:junit:4.13.2")
     androidTestImplementation ("androidx.test.ext:junit:1.1.5")
     androidTestImplementation ("androidx.test.espresso:espresso-core:3.5.1")
@@ -84,8 +85,12 @@ dependencies {
     debugImplementation ("androidx.compose.ui:ui-tooling")
     debugImplementation ("androidx.compose.ui:ui-test-manifest")
 
+    //Accompanist
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
     implementation ("com.google.accompanist:accompanist-insets:0.14.0")
+
+    //Camera Permission
+    implementation ("com.google.accompanist:accompanist-permissions:0.19.0")
 
     //Material 3
     implementation ("androidx.compose.material3:material3:1.2.0-alpha04")
@@ -100,16 +105,13 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
-    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
 
     //CameraX
     implementation ("androidx.camera:camera-core:${cameraxVersion}")
     implementation ("androidx.camera:camera-camera2:${cameraxVersion}")
     implementation ("androidx.camera:camera-lifecycle:${cameraxVersion}")
     implementation ("androidx.camera:camera-view:1.3.0-beta02")
-
-    //Camera Permission
-    implementation ("com.google.accompanist:accompanist-permissions:0.19.0")
 
     //MLKit
     implementation ("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
@@ -127,12 +129,12 @@ dependencies {
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
 
     //Room
-    implementation ("androidx.room:room-runtime:2.5.2")
+    implementation ("androidx.room:room-runtime:$roomVersion")
     implementation ("androidx.lifecycle:lifecycle-extensions:2.2.0")
-    implementation ("androidx.room:room-ktx:2.5.2")
+    implementation ("androidx.room:room-ktx:$roomVersion")
     implementation ("androidx.compose.runtime:runtime-livedata:1.4.3")
-    annotationProcessor ("androidx.room:room-compiler:2.5.2")
-    kapt ("androidx.room:room-compiler:2.5.2")
+    annotationProcessor ("androidx.room:room-compiler:$roomVersion")
+    kapt ("androidx.room:room-compiler:$roomVersion")
 
     //hilt
     implementation("com.google.dagger:hilt-android:2.44")
