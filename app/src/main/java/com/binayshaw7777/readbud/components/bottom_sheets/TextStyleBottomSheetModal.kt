@@ -49,11 +49,13 @@ fun TextStyleBottomSheetModal(
     availableTypefaces: List<SystemFontFamily>,
     onFontChange: (SystemFontFamily) -> Unit,
     availableFontWeight: List<FontWeight>,
-    onFontWeightChange: (FontWeight) -> Unit
+    onFontWeightChange: (FontWeight) -> Unit,
+    onLineHeightChange: (TextUnit) -> Unit
 ) {
     var fontSize by remember { mutableStateOf(16.sp) }
     var fontWeight by remember { mutableStateOf(FontWeight.Normal) }
     var fontFamily: SystemFontFamily by remember { mutableStateOf(FontFamily.Serif) }
+    var lineHeight by remember { mutableStateOf(18.sp) }
 
     if (showBottomSheet.value) {
 
@@ -96,6 +98,20 @@ fun TextStyleBottomSheetModal(
                         onFontWeightChange(fontWeight)
                     },
                     valueRange = 0f..(availableFontWeight.size - 1).toFloat()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Line Height: ${lineHeight.value.toInt()}",
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+                Slider(
+                    value = lineHeight.value,
+                    onValueChange = { value ->
+                        lineHeight = value.sp
+                        onLineHeightChange(lineHeight)
+                    },
+                    valueRange = 18f..35f
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

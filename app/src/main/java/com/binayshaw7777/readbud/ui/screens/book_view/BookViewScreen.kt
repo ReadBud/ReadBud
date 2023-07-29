@@ -91,6 +91,8 @@ fun BookViewScreen(
     val availableFontWeight = getFontWeights()
     var selectedFontWeight by remember { mutableStateOf(FontWeight.Normal) }
 
+    var selectedLineHeight by remember { mutableStateOf(18.sp) }
+
     val scanItemResult by scansViewModel.scanItemLiveData.observeAsState()
 
     val showBottomSheet = remember {
@@ -108,6 +110,8 @@ fun BookViewScreen(
             selectedTypeface = it
         }, availableFontWeight, onFontWeightChange = {
             selectedFontWeight = it
+        }, onLineHeightChange = {
+            selectedLineHeight = it
         })
     }
 
@@ -152,7 +156,8 @@ fun BookViewScreen(
                         annotatedString = listOfAnnotatedString,
                         fontSize = fontSize,
                         fontFamily = selectedTypeface,
-                        fontWeight = selectedFontWeight
+                        fontWeight = selectedFontWeight,
+                        lineHeight = selectedLineHeight
                     )
                     Box(
                         modifier = Modifier
@@ -216,6 +221,7 @@ fun PagePreview(
     fontSize: TextUnit,
     fontFamily: SystemFontFamily,
     fontWeight: FontWeight,
+    lineHeight: TextUnit,
     modifier: Modifier = Modifier
 ) {
 
@@ -251,6 +257,7 @@ fun PagePreview(
                 fontSize,
                 fontFamily,
                 fontWeight,
+                lineHeight = lineHeight,
                 onClick = { pair ->
                     selectedPair.value = pair
                     showBottomSheet.value = true
@@ -331,11 +338,7 @@ fun Definition(
 
                     Spacer(modifier = Modifier.width(20.dp))
                     Text(
-                        text = selectedPair.value.first.replaceFirstChar {
-                            if (it.isLowerCase()) it.titlecase(
-                                Locale.getDefault()
-                            ) else it.toString()
-                        },
+                        text = selectedPair.value.first.lowercase(),
                         style = TextStyle(
                             fontWeight = FontWeight.Medium,
                             fontSize = 30.sp,
@@ -357,6 +360,7 @@ fun DisplayParagraphWithMeanings(
     fontSize: TextUnit,
     fontFamily: SystemFontFamily,
     fontWeight: FontWeight,
+    lineHeight: TextUnit,
     onClick: (Pair<String, String>) -> Unit
 ) {
 
@@ -367,7 +371,7 @@ fun DisplayParagraphWithMeanings(
             letterSpacing = 2.sp,
             fontWeight = fontWeight,
             fontFamily = fontFamily,
-            lineHeight = 40.sp,
+            lineHeight = lineHeight,
         ),
         onClick = { offset ->
             val annotations = annotatedString.getStringAnnotations(
