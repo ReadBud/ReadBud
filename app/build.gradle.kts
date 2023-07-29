@@ -1,6 +1,6 @@
 plugins {
     id ("com.android.application")
-    id ("org.jetbrains.kotlin.android")
+    kotlin ("android")
     id ("kotlin-parcelize")
     id ("kotlin-kapt")
     id ("com.google.dagger.hilt.android")
@@ -63,10 +63,10 @@ dependencies {
 
     val navVersion = "2.6.0"
     val lifecycleVersion = "2.6.1"
-    val cameraxVersion = "1.0.2"
+    val cameraxVersion = "1.2.3"
 
-    implementation ("androidx.core:core-ktx:1.8.0")
-    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
+    implementation ("androidx.core:core-ktx:1.10.1")
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation ("androidx.activity:activity-compose:1.7.2")
     implementation (platform("androidx.compose:compose-bom:2022.10.00"))
     implementation ("androidx.compose.ui:ui")
@@ -88,8 +88,8 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-insets:0.14.0")
 
     //Material 3
-    implementation ("androidx.compose.material3:material3:1.2.0-alpha03")
-    implementation ("androidx.compose.material3:material3-window-size-class:1.2.0-alpha03")
+    implementation ("androidx.compose.material3:material3:1.2.0-alpha04")
+    implementation ("androidx.compose.material3:material3-window-size-class:1.2.0-alpha04")
 
     //Navigation
     implementation ("androidx.navigation:navigation-compose:$navVersion")
@@ -106,7 +106,7 @@ dependencies {
     implementation ("androidx.camera:camera-core:${cameraxVersion}")
     implementation ("androidx.camera:camera-camera2:${cameraxVersion}")
     implementation ("androidx.camera:camera-lifecycle:${cameraxVersion}")
-    implementation ("androidx.camera:camera-view:1.3.0-beta01")
+    implementation ("androidx.camera:camera-view:1.3.0-beta02")
 
     //Camera Permission
     implementation ("com.google.accompanist:accompanist-permissions:0.19.0")
