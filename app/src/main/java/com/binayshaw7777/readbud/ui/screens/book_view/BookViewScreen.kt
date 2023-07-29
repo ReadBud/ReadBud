@@ -1,9 +1,7 @@
 package com.binayshaw7777.readbud.ui.screens.book_view
 
 import android.speech.tts.TextToSpeech
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,14 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,7 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -64,9 +58,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.binayshaw7777.readbud.R
+import com.binayshaw7777.readbud.components.bottom_sheets.TextStyleBottomSheetModal
 import com.binayshaw7777.readbud.data.viewmodel.ScansViewModel
 import com.binayshaw7777.readbud.model.Scans
 import com.binayshaw7777.readbud.utils.Constants.MEANING
+import com.binayshaw7777.readbud.utils.getFontWeights
+import com.binayshaw7777.readbud.utils.getTypeFaces
 import com.binayshaw7777.readbud.utils.jsonToHashMap
 import java.util.Locale
 import java.util.regex.Pattern
@@ -87,14 +84,12 @@ fun BookViewScreen(
     var wordMeanings: HashMap<String, String> = hashMapOf()
 
     var fontSize by remember { mutableStateOf(16.sp) }
-    val availableTypefaces = listOf(
-        FontFamily.Default,
-        FontFamily.Serif,
-        FontFamily.SansSerif,
-        FontFamily.Cursive,
-        FontFamily.Monospace
-    )
+
+    val availableTypefaces = getTypeFaces()
     var selectedTypeface by remember { mutableStateOf(availableTypefaces[0]) }
+
+    val availableFontWeight = getFontWeights()
+    var selectedFontWeight by remember { mutableStateOf(FontWeight.Normal) }
 
     val scanItemResult by scansViewModel.scanItemLiveData.observeAsState()
 
@@ -107,10 +102,12 @@ fun BookViewScreen(
     )
 
     if (showBottomSheet.value) {
-        ShowPrefsBottomSheet(bottomSheetState, showBottomSheet, fontSize, onFontSizeChange = {
+        TextStyleBottomSheetModal(bottomSheetState, showBottomSheet, onFontSizeChange = {
             fontSize = it
-        }, availableTypefaces, selectedTypeface, onFontChange = {
+        }, availableTypefaces, onFontChange = {
             selectedTypeface = it
+        }, availableFontWeight, onFontWeightChange = {
+            selectedFontWeight = it
         })
     }
 
@@ -154,7 +151,8 @@ fun BookViewScreen(
                         index = index,
                         annotatedString = listOfAnnotatedString,
                         fontSize = fontSize,
-                        fontFamily = selectedTypeface
+                        fontFamily = selectedTypeface,
+                        fontWeight = selectedFontWeight
                     )
                     Box(
                         modifier = Modifier
@@ -167,84 +165,6 @@ fun BookViewScreen(
                             text = "Page: ${index + 1}",
                             color = Color.Black
                         )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ShowPrefsBottomSheet(
-    bottomSheetState: SheetState,
-    showBottomSheet: MutableState<Boolean>,
-    fontSize: TextUnit,
-    onFontSizeChange: (TextUnit) -> Unit,
-    availableTypefaces: List<SystemFontFamily>,
-    selectedTypeface: SystemFontFamily,
-    onFontChange: (SystemFontFamily) -> Unit
-) {
-
-    // Sheet content
-    if (showBottomSheet.value) {
-        ModalBottomSheet(
-            onDismissRequest = { showBottomSheet.value = false },
-            sheetState = bottomSheetState,
-        ) {
-            Column(
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .padding(20.dp)
-            ) {
-                Text(
-                    text = "Font Size: ${fontSize.value.toInt()}",
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-                Slider(
-                    value = fontSize.value,
-                    onValueChange = { newValue ->
-                        onFontSizeChange(newValue.sp)
-                    },
-                    valueRange = 12f..24f, // Set the range of font sizes
-                    steps = 8, // Divide the range into 8 steps
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Typeface selection dropdown
-                Text(text = "Font family: ${selectedTypeface.toString().split(".")[1]}")
-                LazyRow(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
-                    items(availableTypefaces) {
-                        Card(
-                            modifier = Modifier
-                                .size(80.dp)
-                                .align(Alignment.CenterHorizontally)
-                                .clickable {
-                                    onFontChange(it)
-                                },
-                            border = BorderStroke(2.dp, Color.Gray)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color.White), contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.default_typeface_mock),
-                                    fontFamily = it,
-                                    fontSize = 20.sp,
-                                    color = Color.Black
-                                )
-                            }
-                        }
                     }
                 }
             }
@@ -295,6 +215,7 @@ fun PagePreview(
     annotatedString: ArrayList<AnnotatedString>,
     fontSize: TextUnit,
     fontFamily: SystemFontFamily,
+    fontWeight: FontWeight,
     modifier: Modifier = Modifier
 ) {
 
@@ -329,6 +250,7 @@ fun PagePreview(
                 annotatedString[index],
                 fontSize,
                 fontFamily,
+                fontWeight,
                 onClick = { pair ->
                     selectedPair.value = pair
                     showBottomSheet.value = true
@@ -434,6 +356,7 @@ fun DisplayParagraphWithMeanings(
     annotatedString: AnnotatedString,
     fontSize: TextUnit,
     fontFamily: SystemFontFamily,
+    fontWeight: FontWeight,
     onClick: (Pair<String, String>) -> Unit
 ) {
 
@@ -442,7 +365,7 @@ fun DisplayParagraphWithMeanings(
         style = TextStyle(
             fontSize = fontSize,
             letterSpacing = 2.sp,
-            fontWeight = FontWeight.Medium,
+            fontWeight = fontWeight,
             fontFamily = fontFamily,
             lineHeight = 40.sp,
         ),
