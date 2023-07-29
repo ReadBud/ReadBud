@@ -61,8 +61,9 @@ android {
 
 dependencies {
 
-    val nav_version = "2.6.0"
-    val lifecycle_version = "2.6.1"
+    val navVersion = "2.6.0"
+    val lifecycleVersion = "2.6.1"
+    val cameraxVersion = "1.0.2"
 
     implementation ("androidx.core:core-ktx:1.8.0")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
@@ -91,21 +92,20 @@ dependencies {
     implementation ("androidx.compose.material3:material3-window-size-class:1.2.0-alpha03")
 
     //Navigation
-    implementation ("androidx.navigation:navigation-compose:$nav_version")
+    implementation ("androidx.navigation:navigation-compose:$navVersion")
 
     // Lifecycle
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
-    implementation ("androidx.lifecycle:lifecycle-runtime-compose:$lifecycle_version")
-    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version")
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
+    implementation ("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
 
     //CameraX
-    val camerax_version = "1.0.2"
-    implementation ("androidx.camera:camera-core:${camerax_version}")
-    implementation ("androidx.camera:camera-camera2:${camerax_version}")
-    implementation ("androidx.camera:camera-lifecycle:${camerax_version}")
+    implementation ("androidx.camera:camera-core:${cameraxVersion}")
+    implementation ("androidx.camera:camera-camera2:${cameraxVersion}")
+    implementation ("androidx.camera:camera-lifecycle:${cameraxVersion}")
     implementation ("androidx.camera:camera-view:1.3.0-beta01")
 
     //Camera Permission
