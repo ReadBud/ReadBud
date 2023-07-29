@@ -9,7 +9,7 @@ import com.binayshaw7777.readbud.data.dao.ScansDAO
 import com.binayshaw7777.readbud.model.Converters
 import com.binayshaw7777.readbud.model.Scans
 
-@Database(entities = [Scans::class], version = 2)
+@Database(entities = [Scans::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class ScansDatabase : RoomDatabase() {
 
