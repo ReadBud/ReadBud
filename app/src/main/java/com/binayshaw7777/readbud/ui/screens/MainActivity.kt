@@ -8,7 +8,7 @@ import androidx.compose.material3.Surface
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.binayshaw7777.readbud.navigation.Navigation
-import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
+import com.binayshaw7777.readbud.viewmodel.ImageSharedViewModel
 import com.binayshaw7777.readbud.ui.theme.ReadBudTheme
 import com.binayshaw7777.readbud.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,8 +28,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             ReadBudTheme(dynamicColor = true) {
                 Surface {
-                    val imageViewModel = hiltViewModel<ImageViewModel>()
-                    Navigation(imageViewModel)
+                    val imageSharedViewModel = hiltViewModel<ImageSharedViewModel>()
+                    Navigation(imageSharedViewModel)
                 }
             }
         }

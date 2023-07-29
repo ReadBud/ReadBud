@@ -1,4 +1,4 @@
-package com.binayshaw7777.readbud.ui.screens.image_screens.image_listing
+package com.binayshaw7777.readbud.ui.screens.image_screens.image_listing_screen
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
@@ -69,7 +69,7 @@ import com.binayshaw7777.readbud.model.NeededPermission
 import com.binayshaw7777.readbud.model.RecognizedTextItem
 import com.binayshaw7777.readbud.model.getNeededPermission
 import com.binayshaw7777.readbud.navigation.Screens
-import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
+import com.binayshaw7777.readbud.viewmodel.ImageSharedViewModel
 import com.binayshaw7777.readbud.utils.goToAppSetting
 import kotlinx.coroutines.launch
 import me.saket.swipe.SwipeAction
@@ -77,8 +77,8 @@ import me.saket.swipe.SwipeableActionsBox
 
 
 @Composable
-fun ImageListing(
-    imageViewModel: ImageViewModel, scansViewModel: ScansViewModel, navController: NavController
+fun ImageListingScreen(
+    imageSharedViewModel: ImageSharedViewModel, scansViewModel: ScansViewModel, navController: NavController
 ) {
 
     val activity = LocalContext.current as Activity
@@ -95,7 +95,7 @@ fun ImageListing(
                 permissionDialog.add(NeededPermission.CAMERA_PERMISSION)
             else {
                 scope.launch {
-                    navController.navigate(Screens.MLKitTextRecognition.name)
+                    navController.navigate(Screens.CameraCaptureScreen.name)
                 }
             }
         }
@@ -111,7 +111,7 @@ fun ImageListing(
         }
     )
 
-    val listOfRecognizedTextItem = imageViewModel.recognizedTextItemList.observeAsState()
+    val listOfRecognizedTextItem = imageSharedViewModel.recognizedTextItemList.observeAsState()
     val onSaveObserverState = scansViewModel.onCompleteSaveIntoDB.observeAsState()
 
 
@@ -125,19 +125,19 @@ fun ImageListing(
     }
 
     if (onClickSave.value) {
-        ShowBottomSheetForSaving(onClickSave, scansViewModel, imageViewModel)
+        ShowBottomSheetForSaving(onClickSave, scansViewModel, imageSharedViewModel)
     }
 
     if (onItemClickListener.value) {
         ShowBottomSheetOnItemClick(
             onItemClickListener,
             selectedItem,
-            imageViewModel
+            imageSharedViewModel
         )
     }
 
     BackHandler(true) {
-        onBackPressHandler(imageViewModel, navController)
+        onBackPressHandler(imageSharedViewModel, navController)
     }
     Scaffold(Modifier.fillMaxSize(),
 
@@ -146,7 +146,7 @@ fun ImageListing(
                 listOfRecognizedTextItem,
                 onClickSave,
                 navController,
-                imageViewModel
+                imageSharedViewModel
             )
         },
 
@@ -174,7 +174,7 @@ fun ImageListing(
                                         selectedItem.value = item
                                         onItemClickListener.value = true
                                     },
-                                    imageViewModel = imageViewModel
+                                    imageSharedViewModel = imageSharedViewModel
                                 )
                             }
                         }
@@ -192,8 +192,8 @@ fun ImageListing(
     }
 }
 
-private fun onBackPressHandler(imageViewModel: ImageViewModel, navController: NavController) {
-    imageViewModel.clearAllRecognizedTextItems()
+private fun onBackPressHandler(imageSharedViewModel: ImageSharedViewModel, navController: NavController) {
+    imageSharedViewModel.clearAllRecognizedTextItems()
     navController.popBackStack()
 }
 
@@ -201,7 +201,7 @@ private fun onBackPressHandler(imageViewModel: ImageViewModel, navController: Na
 fun OnSwipeList(
     item: RecognizedTextItem,
     onItemClicked: (itemId: Int) -> Unit,
-    imageViewModel: ImageViewModel
+    imageSharedViewModel: ImageSharedViewModel
 ) {
 
     val showDeleteItemDialog = remember { mutableStateOf(false) }
@@ -222,7 +222,7 @@ fun OnSwipeList(
     )
 
     if (showDeleteItemDialog.value) {
-        ShowDeleteItemDialog(item, showDeleteItemDialog, imageViewModel)
+        ShowDeleteItemDialog(item, showDeleteItemDialog, imageSharedViewModel)
     }
 
     SwipeableActionsBox(
@@ -245,7 +245,7 @@ fun OnSwipeList(
 fun ShowDeleteItemDialog(
     item: RecognizedTextItem,
     showDeleteItemDialog: MutableState<Boolean>,
-    imageViewModel: ImageViewModel
+    imageSharedViewModel: ImageSharedViewModel
 ) {
     AlertDialog(
         onDismissRequest = {
@@ -263,7 +263,7 @@ fun ShowDeleteItemDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    imageViewModel.removeItemFromIndex(item.index)
+                    imageSharedViewModel.removeItemFromIndex(item.index)
                     showDeleteItemDialog.value = false
                 }
             ) {
@@ -288,7 +288,7 @@ private fun ShowTopAppBar(
     listOfRecognizedTextItem: State<List<RecognizedTextItem>?>,
     onClickSave: MutableState<Boolean>,
     navController: NavController,
-    imageViewModel: ImageViewModel
+    imageSharedViewModel: ImageSharedViewModel
 ) {
     CenterAlignedTopAppBar(title = {
         Text(
@@ -298,7 +298,7 @@ private fun ShowTopAppBar(
         )
     }, navigationIcon = {
         IconButton(onClick = {
-            onBackPressHandler(imageViewModel, navController)
+            onBackPressHandler(imageSharedViewModel, navController)
         }) {
             Icon(
                 imageVector = Icons.Filled.ArrowBack,
@@ -364,7 +364,7 @@ fun ShowFloatingActionButton(
 fun ShowBottomSheetOnItemClick(
     onItemClickListener: MutableState<Boolean>,
     selectedItem: MutableState<RecognizedTextItem>,
-    imageViewModel: ImageViewModel
+    imageSharedViewModel: ImageSharedViewModel
 ) {
 
     selectedItem.value.extractedText?.let { value ->
@@ -397,7 +397,7 @@ fun ShowBottomSheetOnItemClick(
                     )
                     Button(onClick = {
                         selectedItem.value.extractedText = updatedRecognizedTextValue
-                        imageViewModel.updateRecognizedItem(selectedItem.value)
+                        imageSharedViewModel.updateRecognizedItem(selectedItem.value)
                         onItemClickListener.value = false
                     }) {
                         Text(text = stringResource(id = R.string.save))
@@ -425,7 +425,7 @@ fun ShowBottomSheetOnItemClick(
 fun ShowBottomSheetForSaving(
     onClickSave: MutableState<Boolean>,
     scansViewModel: ScansViewModel,
-    imageViewModel: ImageViewModel
+    imageSharedViewModel: ImageSharedViewModel
 ) {
     ModalBottomSheet(onDismissRequest = { onClickSave.value = false }) {
 
@@ -470,7 +470,7 @@ fun ShowBottomSheetForSaving(
                 }
                 Button(onClick = {
                     scansViewModel.saveIntoDB(
-                        saveAsFileName, imageViewModel.clearAllRecognizedTextItems()
+                        saveAsFileName, imageSharedViewModel.clearAllRecognizedTextItems()
                     )
                     onClickSave.value = false
                 }) {

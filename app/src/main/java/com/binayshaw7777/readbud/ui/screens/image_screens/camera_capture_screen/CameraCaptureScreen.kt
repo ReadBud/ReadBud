@@ -1,7 +1,8 @@
-package com.binayshaw7777.readbud.ui.screens.helpers
+package com.binayshaw7777.readbud.ui.screens.image_screens.camera_capture_screen
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -20,13 +21,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
+import com.binayshaw7777.readbud.R
 import com.binayshaw7777.readbud.model.RecognizedTextItem
-import com.binayshaw7777.readbud.ui.screens.image_screens.ImageViewModel
+import com.binayshaw7777.readbud.viewmodel.ImageSharedViewModel
 import com.binayshaw7777.readbud.utils.rotateBitmap
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -36,9 +39,9 @@ import java.util.concurrent.Executors
 
 
 @Composable
-fun MLKitTextRecognition(
+fun CameraCaptureScreen(
     navController: NavController,
-    imageViewModel: ImageViewModel
+    imageSharedViewModel: ImageSharedViewModel
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -48,7 +51,12 @@ fun MLKitTextRecognition(
         mutableStateOf(false)
     }
     if (isClicked.value) {
-        imageViewModel.addRecognizedTextItems(recognizedTxtItems.value)
+        if (recognizedTxtItems.value.extractedText.isNullOrEmpty()) {
+            Toast.makeText(context,
+                stringResource(R.string.no_text_found_in_the_image), Toast.LENGTH_SHORT).show()
+        } else {
+            imageSharedViewModel.addRecognizedTextItems(recognizedTxtItems.value)
+        }
         isClicked.value = false
         navController.popBackStack()
     }
@@ -82,7 +90,10 @@ fun TextRecognitionView(
         remember { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
 
-    Column(Modifier.background(Color.Black).fillMaxSize()) {
+    Column(
+        Modifier
+            .background(Color.Black)
+            .fillMaxSize()) {
         AndroidView(
             modifier = Modifier
                 .fillMaxWidth()
@@ -127,7 +138,9 @@ fun TextRecognitionView(
                 .background(Color.Transparent)
         ) {
             Button(
-                modifier = Modifier.size(65.dp).align(Alignment.CenterVertically),
+                modifier = Modifier
+                    .size(65.dp)
+                    .align(Alignment.CenterVertically),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 onClick = {
                     cameraProvider.unbindAll()
