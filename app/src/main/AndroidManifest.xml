@@ -2,12 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!--This feature declares that your app requires a camera,
+    but it is not necessary for the app to function properly.
+    If the device does not have a camera, your app can still
+    be installed and run-->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
+
+    <!--This permission allows your app to access the device's camera-->
     <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
 
     <queries>
         <intent>
@@ -26,14 +30,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ReadBud"
         tools:targetApi="31">
+
         <activity
             android:name=".ui.screens.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.MyApp.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
