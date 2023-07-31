@@ -408,11 +408,11 @@ fun ShowBottomSheetOnItemClick(
                     modifier = Modifier.fillMaxWidth(),
                     value = updatedRecognizedTextValue,
                     onValueChange = { updatedRecognizedTextValue = it },
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = TextFieldDefaults.colors(
                         focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
                         disabledIndicatorColor = Color.Transparent,
                         errorIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
                     ),
                 )
             }
@@ -450,11 +450,11 @@ fun ShowBottomSheetForSaving(
                 modifier = Modifier.fillMaxWidth(),
                 value = saveAsFileName,
                 onValueChange = { saveAsFileName = it },
-                colors = TextFieldDefaults.textFieldColors(
+                colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent,
                     errorIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
                 ),
             )
             Spacer(modifier = Modifier.height(16.dp))

@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -165,7 +166,7 @@ fun getHelpItems(context: Context): List<HelpItem> {
 fun ShowHelpBottomSheet(showHelpBottomSheet: MutableState<Boolean>) {
     ModalBottomSheet(
         onDismissRequest = { showHelpBottomSheet.value = false },
-        sheetState = SheetState(skipPartiallyExpanded = true)
+        sheetState = SheetState(skipPartiallyExpanded = true, density = LocalDensity.current)
     ) {
         val context = LocalContext.current
         val helpItems = getHelpItems(context)
@@ -199,7 +200,7 @@ fun ShowHelpBottomSheet(showHelpBottomSheet: MutableState<Boolean>) {
 fun ShowAboutBottomSheet(showAboutBottomSheet: MutableState<Boolean>) {
     ModalBottomSheet(
         onDismissRequest = { showAboutBottomSheet.value = false },
-        sheetState = SheetState(skipPartiallyExpanded = true)
+        sheetState = SheetState(skipPartiallyExpanded = true, density = LocalDensity.current)
     ) {
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -217,31 +218,22 @@ fun ShowAboutBottomSheet(showAboutBottomSheet: MutableState<Boolean>) {
                     painter = painterResource(R.drawable.circular_logo),
                     contentDescription = stringResource(R.string.app_name)
                 )
-            }
-            item {
                 Spacer(modifier = Modifier.width(20.dp))
                 Text(
                     text = stringResource(R.string.app_name),
                     fontFamily = FontFamily.Serif,
                     fontSize = 20.sp
                 )
-
-            }
-            item {
                 Spacer(modifier = Modifier.width(20.dp))
                 Text(
                     text = stringResource(R.string.about_app_description),
                     textAlign = TextAlign.Center
                 )
-            }
-            item {
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = stringResource(R.string.purpose_app_description),
                     textAlign = TextAlign.Center
                 )
-            }
-            item {
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = stringResource(R.string.need_help_note),
