@@ -201,7 +201,7 @@ fun ShowAboutBottomSheet(showAboutBottomSheet: MutableState<Boolean>) {
         onDismissRequest = { showAboutBottomSheet.value = false },
         sheetState = SheetState(skipPartiallyExpanded = true)
     ) {
-        Column(
+        LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
@@ -209,29 +209,45 @@ fun ShowAboutBottomSheet(showAboutBottomSheet: MutableState<Boolean>) {
                 .navigationBarsPadding()
                 .padding(16.dp)
         ) {
-            Image(
-                modifier = Modifier
-                    .clip(CircleShape.copy(CornerSize(40.dp)))
-                    .size(80.dp),
-                painter = painterResource(R.drawable.circular_logo),
-                contentDescription = stringResource(R.string.app_name)
-            )
-            Spacer(modifier = Modifier.width(20.dp))
-            Text(
-                text = stringResource(R.string.app_name),
-                fontFamily = FontFamily.Serif,
-                fontSize = 20.sp
-            )
-            Spacer(modifier = Modifier.width(20.dp))
-            Text(
-                text = stringResource(R.string.about_app_description),
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = stringResource(R.string.purpose_app_description),
-                textAlign = TextAlign.Center
-            )
+            item {
+                Image(
+                    modifier = Modifier
+                        .clip(CircleShape.copy(CornerSize(40.dp)))
+                        .size(80.dp),
+                    painter = painterResource(R.drawable.circular_logo),
+                    contentDescription = stringResource(R.string.app_name)
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.width(20.dp))
+                Text(
+                    text = stringResource(R.string.app_name),
+                    fontFamily = FontFamily.Serif,
+                    fontSize = 20.sp
+                )
+
+            }
+            item {
+                Spacer(modifier = Modifier.width(20.dp))
+                Text(
+                    text = stringResource(R.string.about_app_description),
+                    textAlign = TextAlign.Center
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = stringResource(R.string.purpose_app_description),
+                    textAlign = TextAlign.Center
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = stringResource(R.string.need_help_note),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
