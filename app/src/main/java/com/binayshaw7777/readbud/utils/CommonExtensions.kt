@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.SystemFontFamily
-import com.binayshaw7777.readbud.ui.screens.MainActivity
+import com.binayshaw7777.readbud.ui.screens.intro.MainActivity
 
 fun Activity.goToAppSetting() {
     val intentToAppSettings = Intent(
